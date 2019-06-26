@@ -80,10 +80,7 @@
             "Default": "LATEST",
             "AllowedValues": [
                 "LATEST",
-                "621",
-                "620",
-                "604",
-                "603"
+                "621"
             ],
             "ConstraintDescription": "must be a valid FortiOS version from the selection.",
             "Description": "Supported FortiOS versions. The 'LATEST' version can be found in template parameter 'FortiGateKeyMap.FortiGateVersion' in the 'Mappings section."
@@ -201,6 +198,7 @@
         },
         "TransitGatewayId": {
             "Type": "String",
+            "Default": "",
             "Description": "If you use an existing Transit Gateway, specify the ID of the Transit Gateway that the FortiGate Autoscale VPC is attached to."
         },
         "BgpAsn": {
@@ -231,65 +229,66 @@
         "FortiGateKeyMap": {
             "FortiGateVersion": {
                 "LATEST": "FGTVM64PAYG621",
-                "603": "FGTVM64PAYG603",
-                "604": "FGTVM64PAYG604",
-                "620": "FGTVM64PAYG620",
                 "621": "FGTVM64PAYG621"
             }
         },
         "AWSAMIRegionMap": {
             "AMI": {
-                "FGTVM64PAYG603": "aws-marketplace/FortiGate-VM64-AWSONDEMAND build0200 (6.0.3) GA-3124a694-441c-4ff1-8bf7-4d153be424a6-ami-09dba22e5db2d4fb5.4",
-                "FGTVM64PAYG604": "aws-marketplace/FortiGate-VM64-AWSONDEMAND build0231 (6.0.4) GA-3124a694-441c-4ff1-8bf7-4d153be424a6-ami-03aa5daa2a028ceba.4",
-                "FGTVM64PAYG620": "TODO: need to set correct info here."
+                "FGTVM64PAYG621": "aws-marketplace/FortiGate-VM64-AWSONDEMAND build0932 (6.2.1) GA-3124a694-441c-4ff1-8bf7-4d153be424a6-ami-094f6bfd5592431e0.4"
             },
             "ap-northeast-1": {
-                "FGTVM64PAYG603": "ami-0bd9e6e0020928ef9"
+                "FGTVM64PAYG621": "ami-09cdcd4c2445e2c70"
             },
             "ap-northeast-2": {
-                "FGTVM64PAYG603": "ami-0a560b6c089c6310a"
+                "FGTVM64PAYG621": "ami-0a796272ef341a29d"
             },
             "ap-southeast-1": {
-                "FGTVM64PAYG603": "ami-000c0166f49864e4a"
+                "FGTVM64PAYG621": "ami-02502caa43eb2d055"
             },
             "ap-southeast-2": {
-                "FGTVM64PAYG603": "ami-0e3662b3f822e3be4"
+                "FGTVM64PAYG621": "ami-09c29aa6a848e77b9"
             },
             "ap-south-1": {
-                "FGTVM64PAYG603": "ami-0c5a28e0b56028d6d"
+                "FGTVM64PAYG621": "ami-0b71271bc53238423"
             },
             "sa-east-1": {
-                "FGTVM64PAYG603": "ami-0424ffd602f0af643"
+                "FGTVM64PAYG621": "ami-034495a12fdb747ce"
             },
             "eu-west-1": {
-                "FGTVM64PAYG603": "ami-0aeda1bdca1b205bd"
+                "FGTVM64PAYG621": "ami-0c14998b35a39578e"
             },
             "eu-west-2": {
-                "FGTVM64PAYG603": "ami-0de7050ef166ab900"
+                "FGTVM64PAYG621": "ami-08cce3d57081f5137"
             },
             "eu-west-3": {
-                "FGTVM64PAYG603": "ami-0ce86abfa74c76ad2"
+                "FGTVM64PAYG621": "ami-06dc0733eb79a0101"
+            },
+            "eu-north-1": {
+                "FGTVM64PAYG621": "ami-34bf344a"
             },
             "eu-central-1": {
-                "FGTVM64PAYG603": "ami-0af055c02be246473"
+                "FGTVM64PAYG621": "ami-0f670719612ad57cc"
             },
             "ca-central-1": {
-                "FGTVM64PAYG603": "ami-0583f62d15a462f5c"
+                "FGTVM64PAYG621": "ami-06068c796e12ce93a"
             },
             "us-east-1": {
-                "FGTVM64PAYG603": "ami-09e4f25ec992c94ab"
+                "FGTVM64PAYG621": "ami-0face455a14251c57"
             },
             "us-east-2": {
-                "FGTVM64PAYG603": "ami-0a1f403f5e0cfa88e"
+                "FGTVM64PAYG621": "ami-07ca9dae55f42b1c3"
             },
             "us-west-1": {
-                "FGTVM64PAYG603": "ami-057300bd7e60ea2b2"
+                "FGTVM64PAYG621": "ami-0c106aaaac4c4abd8"
             },
             "us-west-2": {
-                "FGTVM64PAYG603": "ami-0ea3f14da73832fdc"
+                "FGTVM64PAYG621": "ami-0439b030915c59e67"
+            },
+            "us-gov-east-1": {
+                "FGTVM64PAYG621": "ami-7d52b30c"
             },
             "us-gov-west-1": {
-                "FGTVM64PAYG603": "ami-ddf76dbc"
+                "FGTVM64PAYG621": "ami-6d00430c"
             }
         },
         "ProtocolPortMap": {
