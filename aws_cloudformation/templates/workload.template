@@ -1371,7 +1371,6 @@
         },
         "TransitGatewayRouteTableInbound": {
             "Type": "AWS::EC2::TransitGatewayRouteTable",
-            "Condition": "CreateTransitGateway",
             "Properties": {
                 "TransitGatewayId": {
                     "Fn::If": [
