@@ -6,8 +6,8 @@
             "Type": "String",
             "AllowedPattern": "[0-9a-zA-Z@.#-]+",
             "MaxLength": 50,
-            "ConstraintDescription": "Resource tag prefix can include numbers, lowercase letters, uppercase letters, ampersat(@) , hyphens (-), period (.), and hash (#). Max length is 64.",
-            "Description": "A prefix for tag key ResourceGroup on all resources. It's also used as the name prefix of all applicable resources. Can only contain numbers, lowercase letters, uppercase letters, ampersat(@) , hyphens (-), period (.), and hash (#). Max length is 50."
+            "ConstraintDescription": "Resource tag prefix can include numbers, lowercase letters, uppercase letters, ampersat(@) , hyphens (-), period (.), and hash (#). Max length is 50.",
+            "Description": "A prefix for the tag key ResourceGroup on all resources. It's also used as the name prefix of all applicable resources. Can only contain numbers, lowercase letters, uppercase letters, ampersat(@) , hyphens (-), period (.), and hash (#). Max length is 50."
         },
         "CustomIdentifier": {
             "Type": "String",
@@ -15,19 +15,19 @@
             "MaxLength": "10",
             "AllowedPattern": "[A-Za-z0-9]+",
             "ConstraintDescription": "must only contain uppercase and lowercase letters and numbers",
-            "Description": "An alternative name prefix. This shorter version of prefix is used on a resource that Resource tag prefix cannot apply to. Must be at most 10 characters long and only contain uppercase, lowercase letters, and numbers. Max length is 10."
+            "Description": "An alternative name prefix to  be used on a resource that the “Resource tag prefix” cannot apply to. Can only contain numbers, lowercase letters, and uppercase letters. Max length is 10."
         },
         "S3BucketName": {
             "Type": "String",
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Deployment resource S3 bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
-            "Description": "S3 bucket name for the Deployment package. Bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-)."
+            "Description": "S3 bucket name for the deployment package. Can contain numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-)."
         },
         "S3KeyPrefix": {
             "Type": "String",
             "AllowedPattern": "^[0-9a-zA-Z-/]*$",
             "ConstraintDescription": "Deployment package S3 key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
-            "Description": "S3 key prefix for the deployment package. Key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/)."
+            "Description": "S3 key prefix for the deployment package. Can contain numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/)."
         },
         "AvailabilityZones": {
             "Description": "The list of Availability Zones to use for the subnets in the VPC. The FortiGate Autoscale solution uses two Availability Zones from your list and preserves the logical order you specify.",
@@ -66,7 +66,7 @@
                 "c5.9xlarge"
             ],
             "ConstraintDescription": "must be a valid EC2 instance type.",
-            "Description": "Instance type to launch as FortiGate On-Demand instances. There are t2.small and compute-optimized instances such as c4 and c5 available with different vCPU sizes and bandwidths. For more information about instance types, see https://aws.amazon.com/ec2/instance-types/"
+            "Description": "Instance type to launch as FortiGate On-Demand instances. There are t2.small and compute-optimized instances such as c4 and c5 available with different vCPU sizes and bandwidths. For more information about instance types, see https://aws.amazon.com/ec2/instance-types/."
         },
         "FortiOSVersion": {
             "Type": "String",
@@ -78,7 +78,7 @@
                 "FortiOS 6.2.0"
             ],
             "ConstraintDescription": "must be a valid FortiOS version from the selection.",
-            "Description": "Supported FortiOS versions."
+            "Description": "FortiOS version."
         },
         "LifecycleHookTimeout": {
             "Type": "Number",
@@ -86,7 +86,7 @@
             "MinValue": 60,
             "MaxValue": 3600,
             "ConstraintDescription": "must be a valid number between 60 and 3600.",
-            "Description": "FortiGate instance lifecycle expiry entry (in seconds). Minimum is 60. Maximum is 3600."
+            "Description": "The amount of time (in seconds) that can elapse before the FortiGate Autoscale lifecycle hook times out. Minimum is 60. Maximum is 3600."
         },
         "FgtAsgCooldown": {
             "Type": "Number",
@@ -94,14 +94,14 @@
             "MinValue": 60,
             "MaxValue": 3600,
             "ConstraintDescription": "must be a valid number between 60 and 3600.",
-            "Description": "Auto Scaling group waits for the cooldown period (in seconds) to complete before resuming scaling activities. Minimum is 60. Maximum is 3600."
+            "Description": "The Auto Scaling group waits for the cooldown period (in seconds) to complete before resuming scaling activities. Minimum is 60. Maximum is 3600."
         },
         "FgtAsgDesiredCapacity": {
             "Type": "Number",
             "Default": 2,
             "MinValue": 2,
             "ConstraintDescription": "must be a valid number not less than 2.",
-            "Description": "The number of FortiGate instances the group should have at any time, also called desired capacity. Must keep at least 2 FortiGates in the group for High Availability. Minimum is 2."
+            "Description": "The number of FortiGate instances the group should have at any time. Must keep at least 2 FortiGates in the group for High Availability. Minimum is 2."
         },
         "FgtAsgMinSize": {
             "Type": "Number",
@@ -144,7 +144,7 @@
             "Type": "String",
             "NoEcho": true,
             "MaxLength": "128",
-            "Description": "A secret key for the FortiGate instances to securely communicate with each other. It can be of your choice of a string, such as numbers or letters or the combination of them. Max length 128."
+            "Description": "A secret key for the FortiGate instances to securely communicate with each other. Can contain numbers and letters. Max length is 128."
         },
         "FortiGateAdminPort": {
             "Type": "Number",
@@ -152,7 +152,7 @@
             "MinValue": 1,
             "MaxValue": 65535,
             "ConstraintDescription": "must be a valid port number between 1 and 65535.",
-            "Description": "A port number for FortiGate administration. Minimum is 1. Maximum is 65535. Do not use: 443, 541, 514, 703 because these are FortiGate reserved ports."
+            "Description": "A port number for FortiGate administration. Minimum is 1. Maximum is 65535. Do not use the FortiGate reserved ports.: 443, 541, 514, 703."
         },
         "FortiGateAdminCidr": {
             "Type": "String",
@@ -189,7 +189,7 @@
                 "use an existing one"
             ],
             "ConstraintDescription": "must choose from the provided options.",
-            "Description": "Options for add an optional pre-defined load balancer to route traffic to web service in the private subnets. You can optionally use your own one or decide to not need one."
+            "Description": "Create a Transit Gateway for the FortiGate Autoscale VPC to attach to, or specify to use an existing one."
         },
         "TransitGatewayId": {
             "Type": "String",
@@ -201,7 +201,7 @@
             "MinValue": 64512,
             "Default": 65000,
             "MaxValue": 65534,
-            "Description": "The Border Gateway Protocol (BGP) Autonomous System Number of the Customer Gateway of each FortiGate instance in the Auto Scaling Group. This value rangess from 64512 to 65534."
+            "Description": "The Border Gateway Protocol (BGP) Autonomous System Number of the Customer Gateway of each FortiGate instance in the Auto Scaling Group. This value ranges from 64512 to 65534."
         }
     },
     "Conditions": {
