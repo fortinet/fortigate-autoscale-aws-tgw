@@ -68,13 +68,24 @@ async function restart() {
     let settings = await autoscaleHandler.loadAutoScalingSettings();
     // FIXME: if bug 0560197 is fixed, the delay added here needs to remove
     // and update the capacity to settings.desiredCapacity
-    await autoscaleHandler.updateCapacity(
-        autoscaleHandler._settings['payg-auto-scaling-group-name'], 1, 1, settings.maxSize);
-    if (settings.desiredCapacity > 1) {
-        await ftgtAutoscaleAws.AutoScaleCore.Functions.sleep(60000);
+    // a fix for 0560197
+    if (autoscaleHandler._settings['master-election-no-wait'] === 'true') {
         await autoscaleHandler.updateCapacity(
-            autoscaleHandler._settings['payg-auto-scaling-group-name'], settings.desiredCapacity,
-            settings.minSize, settings.maxSize);
+            autoscaleHandler._settings['payg-auto-scaling-group-name'],
+            settings.desiredCapacity,
+            settings.minSize,
+            settings.maxSize
+        );
+    } else {
+        await autoscaleHandler.updateCapacity(
+            autoscaleHandler._settings['payg-auto-scaling-group-name'], 1, 1, settings.maxSize);
+        if (settings.desiredCapacity > 1) {
+            await ftgtAutoscaleAws.AutoScaleCore.Functions.sleep(60000);
+            await autoscaleHandler.updateCapacity(
+                autoscaleHandler._settings['payg-auto-scaling-group-name'],
+                settings.desiredCapacity,
+                settings.minSize, settings.maxSize);
+        }
     }
 }
 

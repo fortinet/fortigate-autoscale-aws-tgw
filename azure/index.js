@@ -1001,11 +1001,19 @@ class AzureAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
                     // master election done
                     return true;
                 } else if (this._masterRecord && this._masterRecord.voteState === 'pending') {
-                // master election not done, wait for a moment
-                // clear the current master record cache and get a new one in the next call
-                    this._masterRecord = null;
+                    // master election not done
+                    // if master-election-no-wait is enabled, allow this fgt
+                    // to wake up without a master ip.
+                    if (this._settings['master-election-no-wait'] === 'true') {
+                        return true;
+                    } else {
+                        // clear the current master record cache and get a new one in the next call
+                        this._masterRecord = null;
+                        return true;
+                    }
+                } else {
+                    return false;
                 }
-                return false;
             },
             counter = currentCount => {
                 logger.info(`wait for master election (attempt: #${currentCount})`);
@@ -1044,11 +1052,15 @@ class AzureAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
             return config;
         } else {
             this._step = 'handler:getConfig:getSlaveConfig';
+            let getPendingMasterIp = !(this._settings['master-election-no-wait'] === 'true' &&
+                this._masterRecord && this._masterRecord.voteState === 'pending');
             params.callbackUrl = await this.platform.getCallbackEndpointUrl(event);
-            params.masterIp = masterInfo.primaryPrivateIpAddress;
+            params.masterIp = getPendingMasterIp && masterInfo &&
+                masterInfo.primaryPrivateIpAddress || null;
+            params.allowHeadless = this._settings['master-election-no-wait'] === 'true';
             config = await this.getSlaveConfig(params);
             logger.info('called handleGetConfig: returning slave config' +
-                `(master-ip: ${masterInfo.primaryPrivateIpAddress}):\n ${config}`);
+                `(master-ip: ${params.masterIp || 'undetermined'}):\n ${config}`);
             return config;
         }
     }
