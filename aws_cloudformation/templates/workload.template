@@ -77,15 +77,16 @@
         },
         "FortiOSVersion": {
             "Type": "String",
-            "Default": "FortiOS 6.0.3",
+            "Default": "LATEST",
             "AllowedValues": [
-                "Latest (6.2.0)",
-                "FortiOS 6.0.3",
-                "FortiOS 6.0.4",
-                "FortiOS 6.2.0"
+                "LATEST",
+                "621",
+                "620",
+                "604",
+                "603"
             ],
             "ConstraintDescription": "must be a valid FortiOS version from the selection.",
-            "Description": "FortiOS version."
+            "Description": "Supported FortiOS versions. The 'LATEST' version can be found in template parameter 'FortiGateKeyMap.FortiGateVersion' in the 'Mappings section."
         },
         "LifecycleHookTimeout": {
             "Type": "Number",
@@ -229,10 +230,11 @@
     "Mappings": {
         "FortiGateKeyMap": {
             "FortiGateVersion": {
-                "LATEST": "FGTVM64PAYG620",
+                "LATEST": "FGTVM64PAYG621",
                 "603": "FGTVM64PAYG603",
                 "604": "FGTVM64PAYG604",
-                "620": "FGTVM64PAYG620"
+                "620": "FGTVM64PAYG620",
+                "621": "FGTVM64PAYG621"
             }
         },
         "AWSAMIRegionMap": {

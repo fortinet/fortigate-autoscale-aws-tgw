@@ -230,9 +230,18 @@
         },
         "UseLatestFortiOSVersion": {
             "Fn::Equals": [{
-                    "Ref": "FortiOSVersion"
-                },
-                "Latest (6.2.0)"
+                "Fn::Select": [
+                    0,
+                    {
+                    "Fn::Split": [
+                            " ",
+                            {
+                                "Ref": "FortiOSVersion"
+                            }
+                        ]
+                    }
+                ]},
+                "Latest"
             ]
         }
     },
