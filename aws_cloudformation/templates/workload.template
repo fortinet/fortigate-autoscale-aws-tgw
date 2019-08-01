@@ -263,9 +263,6 @@
             "eu-west-3": {
                 "FGTVM64PAYG621": "ami-06dc0733eb79a0101"
             },
-            "eu-north-1": {
-                "FGTVM64PAYG621": "ami-34bf344a"
-            },
             "eu-central-1": {
                 "FGTVM64PAYG621": "ami-0f670719612ad57cc"
             },
