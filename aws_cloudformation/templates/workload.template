@@ -34,7 +34,7 @@
             "Type": "String",
             "AllowedPattern": "^[0-9a-zA-Z-/]*$",
             "ConstraintDescription": "Deployment related resource key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
-            "Description": "S3 key prefix for the deployment package. Can contain numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/)."
+            "Description": "Name of the S3 folder that stores the FortiGate Autoscale deployment resources. Can only contain numbers, lowercase letters, uppercase letters, hyphens (-), and forward slashes (/). If provided, it must end with a forward slash (/)."
         },
         "AvailabilityZones": {
             "Description": "The list of Availability Zones to use for the subnets in the VPC. The FortiGate Autoscale solution uses two Availability Zones from your list and preserves the logical order you specify.",
@@ -1563,7 +1563,7 @@
                     "default": "S3 bucket name"
                 },
                 "S3KeyPrefix": {
-                    "default": "S3 key prefix"
+                    "default": "S3 resource folder"
                 },
                 "LifecycleHookTimeout": {
                     "default": "Instance lifecycle timeout"
