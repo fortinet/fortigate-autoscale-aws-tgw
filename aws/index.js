@@ -646,9 +646,18 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
         try {
             logger.info('calling createNetworkInterface');
             let result = await ec2.createNetworkInterface(parameters).promise();
-            // create a tag
             if (result && result.NetworkInterface) {
-                let params = {
+                let params;
+                // update source/dest check to false
+                params = {
+                    NetworkInterfaceId: result.NetworkInterface.NetworkInterfaceId,
+                    SourceDestCheck: {
+                        Value: false
+                    }
+                };
+                await ec2.modifyNetworkInterfaceAttribute(params).promise();
+                // create a tag
+                params = {
                     Resources: [
                         result.NetworkInterface.NetworkInterfaceId
                     ],
@@ -1535,6 +1544,23 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
         }
     }
 
+    async updateInstanceSrcDestChecking(instanceId, enabled = false) {
+        logger.info('calling updateInstanceSrcDestChecking');
+        const params = {
+            InstanceId: instanceId,
+            SourceDestCheck: {
+                Value: enabled
+            }
+        };
+        try {
+            let result = await ec2.modifyInstanceAttribute(params).promise();
+            logger.info('called updateInstanceSrcDestChecking.');
+            return result;
+        } catch (error) {
+            logger.info('called updateInstanceSrcDestChecking. Error:', JSON.stringify(error));
+            throw error;
+        }
+    }
     // end of awsPlatform class
 }
 
@@ -1770,6 +1796,10 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
                     });
         this.setScalingGroup(this._settings['master-auto-scaling-group-name'],
                     event.detail.AutoScalingGroupName);
+        // update source/dest check to false
+        tasks.push(this.updateInstanceForLaunching(event.detail.EC2InstanceId).catch(() => {
+            errorTasks.push('updateInstanceForLaunching');
+        }));
         // attach nic2
         if (this._selfInstance && this._settings['enable-second-nic'] === 'true') {
             tasks.push(this.handleNicAttachment(event).catch(() => {
@@ -2604,6 +2634,9 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
             `(id: ${attachmentId}) to become available.`);
         }
         return data;
+    }
+    async updateInstanceForLaunching(instanceId) {
+        return await this.platform.updateInstanceSrcDestChecking(instanceId, false);
     }
     // end of AwsAutoscaleHandler class
 }
