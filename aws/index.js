@@ -83,7 +83,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
                 await dynamodb.createTable(schema).promise();
             } catch (error) {
                 logger.error(`table ${schema.TableName} not created!`);
-                logger.error('error:', JSON.stringify(ex), ex);
+                logger.error('error:', JSON.stringify(
+                    ex instanceof Error ? { message: ex.message, stack: ex.stack } : ex
+                ), ex);
                 throw new Error(`table ${schema.TableName} not created!`);
             }
         }
@@ -101,7 +103,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             return true;
         } catch (ex) {
             logger.error(`table ${schema.TableName} not exists!`);
-            logger.error('error:', JSON.stringify(ex), ex);
+            logger.error('error:', JSON.stringify(
+                ex instanceof Error ? { message: ex.message, stack: ex.stack } : ex
+            ), ex);
             throw new Error(`table ${schema.TableName} not exists!`);
         }
     }
@@ -289,7 +293,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             }
             return !!await docClient.put(params).promise();
         } catch (error) {
-            logger.warn('error occurs in putMasterRecord:', JSON.stringify(error));
+            logger.warn('error occurs in putMasterRecord:', JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            ));
             return false;
         }
     }
@@ -457,7 +463,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             }
         } catch (error) {
             logger.info('called getInstanceHealthCheck with error. ' +
-                `error: ${JSON.stringify(error)}`);
+                `error: ${JSON.stringify(
+                    error instanceof Error ? { message: error.message, stack: error.stack } : error
+                )}`);
             return null;
         }
     }
@@ -676,7 +684,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             }
             return result && result.NetworkInterface;
         } catch (error) {
-            logger.warn(`called createNetworkInterface. failed.(error: ${JSON.stringify(error)})`);
+            logger.warn(`called createNetworkInterface. failed.(error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )})`);
             return false;
         }
     }
@@ -686,7 +696,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             logger.info('called deleteNetworkInterface');
             return await ec2.deleteNetworkInterface(parameters).promise();
         } catch (error) {
-            logger.warn(`called deleteNetworkInterface. failed.(error: ${JSON.stringify(error)})`);
+            logger.warn(`called deleteNetworkInterface. failed.(error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )})`);
             return false;
         }
     }
@@ -698,7 +710,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             return result && result.NetworkInterfaces && result.NetworkInterfaces[0];
         } catch (error) {
             logger.warn('called describeNetworkInterface. ' +
-                `failed.(error: ${JSON.stringify(error)})`);
+                `failed.(error: ${JSON.stringify(
+                    error instanceof Error ? { message: error.message, stack: error.stack } : error
+                )})`);
             return false;
         }
     }
@@ -710,7 +724,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             return result && result.NetworkInterfaces;
         } catch (error) {
             logger.warn('called listNetworkInterfaces. ' +
-                `failed.(error: ${JSON.stringify(error)})`);
+                `failed.(error: ${JSON.stringify(
+                    error instanceof Error ? { message: error.message, stack: error.stack } : error
+                )})`);
             return false;
         }
     }
@@ -747,7 +763,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             return result.NetworkInterfaces[0].Attachment.AttachmentId;
         } catch (error) {
             await this.deleteNicAttachmentRecord(instance.instanceId, 'pending_attach');
-            logger.warn(`called attachNetworkInterface. failed.(error: ${JSON.stringify(error)})`);
+            logger.warn(`called attachNetworkInterface. failed.(error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )})`);
             return false;
         }
     }
@@ -789,7 +807,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
                 `done.(nic status: ${result.NetworkInterfaces[0].Status})`);
             return result.NetworkInterfaces[0].Status === 'available';
         } catch (error) {
-            logger.warn(`called detachNetworkInterface. failed.(error: ${JSON.stringify(error)})`);
+            logger.warn(`called detachNetworkInterface. failed.(error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )})`);
             return false;
         }
     }
@@ -908,7 +928,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
                 }
             }
         } catch (error) {
-            logger.warning(`getSettingItem > error: ${JSON.stringify(error)}`);
+            logger.warning(`getSettingItem > error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )}`);
             return null;
         }
     }
@@ -942,7 +964,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             this._settings = result;
             return result;
         } catch (error) {
-            logger.warning(`getSettingItem > error: ${JSON.stringify(error)}`);
+            logger.warning(`getSettingItem > error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )}`);
             return [];
         }
     }
@@ -1152,7 +1176,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             logger.info('called createCustomerGateway');
             return result && result.CustomerGateway;
         } catch (error) {
-            logger.warn(`called createCustomerGateway. failed.(error: ${JSON.stringify(error)})`);
+            logger.warn(`called createCustomerGateway. failed.(error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )})`);
             return false;
         }
     }
@@ -1168,7 +1194,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             logger.info('called deleteCustomerGateway');
             return true;
         } catch (error) {
-            logger.warn(`called deleteCustomerGateway. failed > error: ${JSON.stringify(error)})`);
+            logger.warn(`called deleteCustomerGateway. failed > error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )})`);
             return false;
         }
     }
@@ -1238,7 +1266,10 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
                         return ec2.describeTransitGatewayAttachments(params).promise()
                         .catch(error => {
                             logger.warn('error in describeTransitGatewayAttachments ' +
-                                `>${JSON.stringify(error)}`);
+                                `>${JSON.stringify(
+                                    error instanceof Error ? {
+                                        message: error.message, stack: error.stack } : error
+                                )}`);
                         });
                     };
                     let validator = result => {
@@ -1271,7 +1302,10 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
                         `${(Date.now() - vpnCreationTime) / 1000} seconds.`);
                     } catch (error) {
                         data = null;
-                        logger.error(JSON.stringify(error));
+                        logger.error(JSON.stringify(
+                            error instanceof Error ? {
+                                message: error.message, stack: error.stack } : error
+                        ));
                         logger.error('failed to wait for the transit gateway attachment for vpn' +
                         `connetion (id: ${vpnConnectionId}) to become accessible.`);
                     }
@@ -1315,7 +1349,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             return {attachmentId: tgwAttachment && tgwAttachment.TransitGatewayAttachmentId,
                 vpnConnection: vpnConnection};
         } catch (error) {
-            logger.warn(`called createVpnConnection. failed.(error: ${JSON.stringify(error)})`);
+            logger.warn(`called createVpnConnection. failed.(error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )})`);
             return {attachmentId: tgwAttachment && tgwAttachment.TransitGatewayAttachmentId,
                 vpnConnection: vpnConnection};
         }
@@ -1332,7 +1368,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             logger.info('called deleteVpnConnection');
             return true;
         } catch (error) {
-            logger.warn(`called deleteVpnConnection. failed > error: ${JSON.stringify(error)})`);
+            logger.warn(`called deleteVpnConnection. failed > error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )})`);
             return false;
         }
     }
@@ -1407,7 +1445,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             logger.info('called deleteTgwVpnAttachmentRecord');
             return result;
         } catch (error) {
-            logger.error(`called deleteTgwVpnAttachmentRecord > error: ${JSON.stringify(error)}`);
+            logger.error(`called deleteTgwVpnAttachmentRecord > error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )}`);
             return error;
         }
     }
@@ -1425,7 +1465,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             logger.info('called listTgwVpnAttachments');
             // await deleteTable(dbTables.NICATTACHMENT);
         } catch (error) {
-            logger.warn(`called listTgwVpnAttachments. error >: ${JSON.stringify(error)}`);
+            logger.warn(`called listTgwVpnAttachments. error >: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )}`);
         }
         return items;
     }
@@ -1451,7 +1493,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
                 logger.warn('called updateTgwRouteTablePropagation. Already propagated.');
                 return 'alread-propagated';
             }
-            logger.error('called updateTgwRouteTablePropagation,  error > ', JSON.stringify(error));
+            logger.error('called updateTgwRouteTablePropagation,  error > ', JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            ));
             throw error;
         }
     }
@@ -1477,7 +1521,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
                 logger.warn('called updateTgwRouteTableAssociation. Already associated.');
                 return 'alread-associated';
             }
-            logger.error('called updateTgwRouteTableAssociation,  error > ', JSON.stringify(error));
+            logger.error('called updateTgwRouteTableAssociation,  error > ', JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            ));
             throw error;
         }
     }
@@ -1557,7 +1603,9 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
             logger.info('called updateInstanceSrcDestChecking.');
             return result;
         } catch (error) {
-            logger.info('called updateInstanceSrcDestChecking. Error:', JSON.stringify(error));
+            logger.info('called updateInstanceSrcDestChecking. Error:', JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            ));
             throw error;
         }
     }
@@ -2091,7 +2139,9 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
                 return true;
             }
         } catch (error) {
-            logger.warn(`called handleNicAttachment with error: ${JSON.stringify(error)}`);
+            logger.warn(`called handleNicAttachment with error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )}`);
             return null;
         }
     }
@@ -2159,7 +2209,9 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
                         attachmentRecord.nicId, 'attached', 'pending_detach');
                 }
             }
-            logger.warn(`called handleNicDetachment with error: ${JSON.stringify(error)}`);
+            logger.warn(`called handleNicDetachment with error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )}`);
             return null;
         }
     }
@@ -2396,7 +2448,9 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
                 `tgw id: ${vpnConnection.TransitGatewayId}) created.`);
             return true;
         } catch (error) {
-            logger.warn(`called handleTgwVpnAttachment with error: ${JSON.stringify(error)}`);
+            logger.warn(`called handleTgwVpnAttachment with error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )}`);
             return null;
         }
     }
@@ -2436,7 +2490,9 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
             }
             return true;
         } catch (error) {
-            logger.warn(`called handleTgwVpnDetachment with error: ${JSON.stringify(error)}`);
+            logger.warn(`called handleTgwVpnDetachment with error: ${JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            )}`);
             return null;
         }
     }
@@ -2565,7 +2621,10 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
             return ec2.describeTransitGatewayAttachments(params).promise()
             .catch(error => {
                 logger.warn('error in describeTransitGatewayAttachments ' +
-                                `>${JSON.stringify(error)}`);
+                                `>${JSON.stringify(
+                                    error instanceof Error ? {
+                                        message: error.message, stack: error.stack } : error
+                                )}`);
             });
         };
         let validator = result => {
@@ -2629,7 +2688,9 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
                 associationState: associationState};
         } catch (error) {
             data = null;
-            logger.error(JSON.stringify(error));
+            logger.error(JSON.stringify(
+                error instanceof Error ? { message: error.message, stack: error.stack } : error
+            ));
             logger.error('failed to wait for the transit gateway attachment ' +
             `(id: ${attachmentId}) to become available.`);
         }

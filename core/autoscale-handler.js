@@ -890,7 +890,10 @@ module.exports = class AutoscaleHandler {
                     .setSettingItem(keyName, value, description, jsonEncoded, editable)
                     .catch(error => {
                         this.logger.error(`failed to save setting for key: ${keyName}. ` +
-                            `Error: ${JSON.stringify(error)}`);
+                            `Error: ${JSON.stringify(
+                                error instanceof Error ? {
+                                    message: error.message, stack: error.stack } : error
+                            )}`);
                         errorTasks.push({key: keyName, value: value});
                     }));
             }
@@ -980,7 +983,10 @@ module.exports = class AutoscaleHandler {
             let result = await Promise.all(asyncTasks);
             return !!result;
         } catch (error) {
-            this.logger.error('called purgeMaster > error: ', JSON.stringify(error));
+            this.logger.error('called purgeMaster > error: ', JSON.stringify(
+                error instanceof Error ? {
+                    message: error.message, stack: error.stack } : error
+            ));
             return false;
         }
     }
