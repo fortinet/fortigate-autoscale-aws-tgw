@@ -29,6 +29,11 @@ An Installation Guide is available from the Fortinet Document Library:
 
   * [FortiGate / FortiOS Deploying Auto Scaling on AWS with Transit Gateway integration](https://docs.fortinet.com/vm/aws/fortigate/6.2/aws-cookbook/6.2.0/397979/deploying-auto-scaling-on-aws)
 
+## Deploy to AWS
+
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=fortigate-autoscale&templateURL=https://s3-us-west-2.amazonaws.com/fortinet-github-aws-release-artifacts/fortigate-autoscale-aws-tgw/master/fortigate-autoscale-aws-cloudformation/templates/workload-master.template"><img alt="Launch Stack" src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"></a>
+
+
 # Support
 Fortinet-provided scripts in this and other GitHub projects do not fall under the regular Fortinet technical support scope and are not supported by FortiCare Support Services.
 For direct issues, please refer to the [Issues](https://github.com/fortinet/fortigate-autoscale-aws-tgw/issues) tab of this GitHub project.
