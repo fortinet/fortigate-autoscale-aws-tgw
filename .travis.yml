@@ -5,6 +5,8 @@ script:
   - npm run build
   - npm run unzip-aws-artifacts
   - git describe
+before_deploy:
+  - pip install --user --upgrade awscli
 deploy:
   - provider: releases
     api_key:
@@ -16,16 +18,13 @@ deploy:
       repo: fortinet/fortigate-autoscale-aws-tgw
       tags: true
       branch: master
-  - provider: s3
-    access_key_id:
-      secure: RoOky1yrXp5b1wzFDZPCerCrH3r6IbUKETG4ClglW9LoDlKDhbgHsWjgEjCVRfYEO3qAkvEQGA3BIZyO7Yvr40MnmyVNvOixUg+F2P1fQ0El3j1FrkpV9g6mRZJbctiFcrvLqREbubHlXG1AykAQR2/G6+LzorsNyqPqC9QrK3ZfLekor8JSmHODDSmyLcMuuQCCql8M8JfQUBJgdXY1cL8rbZv48z63IvN2ZGZr+PHoD+FHy0hkKCFbWWYEacU7ZYzrOT251k0HdiBijupBVt2qMQMvhfhnsZin/2ZlFxnugGBjO0sXL2rL8guCGcVVgeQqiu+CW9uNpv+/lojwqdUCHdWVHfnMm6uB8P3c2hglCEDZg5hCngoWzTkPeQZSxJBj1A56C+CxPHv0XhAO+t4eCOhB2BuQUrcX+4yHFmhiQPhvTUl6QJqOMCObvZpBOu59JjkY2Y1K/tR4Mz5IJsD4NONoBWP1f+LTK0QYtidTeYAZ35oV9OQEejZinIGFcRHFtdmWmwRelntcqxmaeJTNrdBuuyIAcMrkdaBQtQcQ3cfFwyW6Ec9MIDPnFiGRvMqrRQ23JHlzdjW2AcoV1HZWsDMucVqnJ+4phHwYPel0Dw3CChamPiIRTJ60qhcL/K1q/qoq+tFVT9ow+uo8gEChQUHMCmkdO221k9zflz4=
-    secret_access_key:
-      secure: uL9l3oe6rra4G+M5gV28ssn2avXZLMrbUi1wK67opOmEUpyEcRdvslrWSWlOdU+1IMl901I/fLI5kVsfSgpZb9wuhic6eRcfuVKk8cMOddiMZKsSoVT6tcANP5O5oT6UTyvCaPk65rOpxHL8klSrrYEP8vVnIryM6hQOjE65aHzRaWSy4nEq9QEE99f2IvfHS7n3hg/4t5LFO61iy+UUc49GcTml6+VT3W7BdBcYdOFOAMJOkQMuBZh2aWe585ZCSO7R9zOZHnCWTb59h0gZPd4BPe5If7eRKHQR9Wq+kvwPNbFnEKJ5avaR10zUcoyiDfL5Jb0CiEJszK64wSA+PeithxtKf5DQtrCYok0vJzg1AXW8b6SSKFoJAoiJ/k3hXoKtYk8QxZ+1Kh2SNnJXgso5hIkZ5JHygMMphHs2zA06TwS0YLr4BNBzbTYF4l6CDEgmP1Ic+y8Rbm1WYblpUlVErcLAbOyfm0D+oEZAGBF7vKQZCWgcso5mvdbuLA1wSqpHFvwGKkXyJgXtNAuI2toyS8rLdL5P4FUh38m0g5fr5ME2ZsgURtI3YlN71y0yeE9q8GXuESlRlzXYpqtriJklAIhTEtppE9ME4ZNY2+ro6jM4qtbwLFKW1Yg3M9JnN3NJD6XYXncsJu94mHvAuKFaax4QSS4qBGpvRhrMzNw=
-    region: us-west-2
-    bucket: fortinet-github-aws-release-artifacts
-    acl: public_read
+  - provider: script
+    script: ~/.local/bin/aws s3 sync distAWS s3://fortinet-github-aws-release-artifacts/fortigate-autoscale-aws-tgw/$TRAVIS_BRANCH --region=us-west-2 --delete --acl=public-read
     skip_cleanup: true
-    local_dir: distAWS
-    upload-dir: fortigate-autoscale-aws-tgw/$TRAVIS_BRANCH
     on:
       all_branches: true
+      condition: "$TRAVIS_BRANCH != dependabot"
+env:
+  global:
+  - secure: q/piD1rwImklg8ZePU+ZK3VTi6+XmnneJ5Q2AROeXAONMSnoy3TLv4pefxeCEOprzay87NIP1nM2RYuAz+1+ckvAL6H0JYHMPMISdACYpF+2Z91OojYHI/tTsT6URUPJ6t0+23uORcWae+Uj9EnhOKUP6yq+mBoiMncpWteIfkJJy4WYJP1bq2TMpESmfbuJvUBzL4fs/5TvR45MzCaxWGEBiCKmzjSsQUs9nhM23PiuBGimk5FqxXlmA9P0Terv1iQsHBIBePkdpUxsYlrvg7NI8o7E1QFFEqmMhc66V5jXHUO5/zp6jd+94BtzZLuShUIof5JD83o1goG08yZkhx/Y8wWFQQ82PpEMIebViFW2Aecqjm9INKCNPsGfddtZxI8tbonCEXLp6Xx6c4RvVde9tbtEtNJwEC04ehxzU3J3fZbP++1wqrseOLROeOwd7C3iGsl6F/+xJ85EytFNFvtv7m7Azy1WrLTBLJzMJylXijRSBWUFqZ3ZBQxa1FUq04FpOWCpQ5ZgvZKiXPeSANDnzAVfuj8Vn14+Vw/sAF9uyxyDsVZdCxVWJWSUBWN07Qd6yZ9PlnHRzpwjJkgbz6EJPwIx4pqOFBQuF5swQlfY/LzxCanbMGNs8sZ1aYbsh8rv1V0ZSLOcer6JmVaNmHGPhWGOfuGalkpU+5Hq7zA=
+  - secure: zjuLgitNaFxBcfxv441u343/EgBKHsPPR6TRe7eT3rP+2DP0FnKynJDxpuWEGwCJNk/jgqjmK+fKJ2xYxrRFYNRKVOvgeIsC/oYLy7td9oALQ4cdhClgNTx4BJf6Vu0aRUJyjiUQpRIChbH/HzBjGTdq6ar0E7eqlynThC2aRbBosdrYb5ERGSjkW7nW9GHrOwOMrGZZYfwCMF3fqcmvwVm+kxw/K4YAxC1jbU/gaGzSR130stwBY4p1NswGAOTy8zkDFHtuLKVpcwgICx4bUXqFaJ1xBS0lSaa8IsjS4VRsFxTdDCs4TPY1IRqB3v/qM/nKImQXAoGhccOUJYcMPHBETiqxkV2tr8Pwvqm/4pAMmsZ0e2hu9hqxDTYA3IRqBieOiPyyuXlRWqGv35s+QhB0wL8O8vvpD2jl3zhxMaK/KyFCdFHqK9xXpLWPFGKHhMqWIysgmiVqheyM+RP0tIo1wsGHlEhVmagLCDCCCPfeUUE+jdAGWPU4BnQcNx+sAUokRE7wHNT+OdyTW5Fsm6pgG+xk6q7Van4oZVIzBjaq4rO43eb4A03tHewVUr98Wd7Irr0Kc5LRo+ok6eCqpSl264EC4VEcUYyUMfLxdzrmW7zG+/H6kahjqYvESIMlgimRg1BohuHFZQ9YJBDLHVu7v34azS+31wr68USXACs=
