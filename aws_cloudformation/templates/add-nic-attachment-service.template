@@ -121,7 +121,7 @@
                         ]
                     ]
                 },
-                "Runtime": "nodejs8.10",
+                "Runtime": "nodejs12.x",
                 "Role": {
                     "Fn::GetAtt": [
                         "IamRoleNicAttachment",
@@ -192,7 +192,7 @@
                         ]
                     ]
                 },
-                "Runtime": "nodejs8.10",
+                "Runtime": "nodejs12.x",
                 "Role": {
                     "Fn::GetAtt": [
                         "IamRoleNicAttachment",
