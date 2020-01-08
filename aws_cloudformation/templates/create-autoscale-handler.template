@@ -486,7 +486,7 @@
                         ]
                     ]
                 },
-                "Runtime": "nodejs8.10",
+                "Runtime": "nodejs12.x",
                 "Role": {
                     "Fn::GetAtt": [
                         "FgtAsgHandlerIamRole",
@@ -648,7 +648,7 @@
                         ]
                     ]
                 },
-                "Runtime": "nodejs8.10",
+                "Runtime": "nodejs12.x",
                 "Role": {
                     "Fn::GetAtt": [
                         "FgtAsgHandlerIamRole",
