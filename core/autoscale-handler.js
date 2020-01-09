@@ -23,14 +23,11 @@ Author: Fortinet
 const path = require('path');
 const Logger = require('./logger');
 const CoreFunctions = require('./core-functions');
-const
-    AUTOSCALE_SECTION_EXPR =
-    /(?:^|(?:\s*))config?\s*system?\s*auto-scale\s*((?:.|\s)*)\bend\b/;
+const AUTOSCALE_SECTION_EXPR = /(?:^|(?:\s*))config?\s*system?\s*auto-scale\s*((?:.|\s)*)\bend\b/;
 const NO_HEART_BEAT_INTERVAL_SPECIFIED = -1;
 const DEFAULT_HEART_BEAT_INTERVAL = 30;
 
 module.exports = class AutoscaleHandler {
-
     constructor(platform, baseConfig) {
         this.platform = platform;
         this._baseConfig = baseConfig;
@@ -75,7 +72,7 @@ module.exports = class AutoscaleHandler {
 
     async init() {
         this.logger.info('calling init [Autoscale handler ininitialization]');
-        const success = await this.platform.init();// do the cloud platform initialization
+        const success = await this.platform.init(); // do the cloud platform initialization
         // ensure that the settings are saved properly.
         // check settings availability
 
@@ -90,10 +87,12 @@ module.exports = class AutoscaleHandler {
         // by doing so, catch the error 'Deployment settings not saved.' and handle it.
         this.logger.info('checking deployment setting items');
         if (!this._settings) {
-            await this.platform.getSettingItems();// initialize the platform settings
+            await this.platform.getSettingItems(); // initialize the platform settings
         }
-        if (!this._settings || this._settings &&
-            this._settings['deployment-settings-saved'] !== 'true') {
+        if (
+            !this._settings ||
+            (this._settings && this._settings['deployment-settings-saved'] !== 'true')
+        ) {
             // in the init function of each platform autoscale-handler, this error must be caught
             // and provide addtional handling code to save the settings
             throw new Error('Deployment settings not saved.');
@@ -104,8 +103,9 @@ module.exports = class AutoscaleHandler {
 
     async getConfigSet(configName) {
         try {
-            let keyPrefix = this._settings['asset-storage-key-prefix'] ?
-                path.join(this._settings['asset-storage-key-prefix'], 'configset') : 'configset';
+            let keyPrefix = this._settings['asset-storage-key-prefix']
+                ? path.join(this._settings['asset-storage-key-prefix'], 'configset')
+                : 'configset';
             const parameters = {
                 storageName: this._settings['asset-storage-name'],
                 keyPrefix: keyPrefix,
@@ -113,8 +113,11 @@ module.exports = class AutoscaleHandler {
             };
             let blob = await this.platform.getBlobFromStorage(parameters);
             // replace Windows line feed \r\n with \n to normalize the config set
-            if (blob.content && typeof blob.content === 'string' &&
-                blob.content.indexOf('\r') >= 0) {
+            if (
+                blob.content &&
+                typeof blob.content === 'string' &&
+                blob.content.indexOf('\r') >= 0
+            ) {
                 // eslint-disable-next-line no-control-regex
                 return blob.content.replace(new RegExp('\r', 'g', ''));
             } else {
@@ -134,9 +137,12 @@ module.exports = class AutoscaleHandler {
     async getBaseConfig() {
         let baseConfig = await this.getConfigSet('baseconfig');
         let psksecret = this._settings['fortigate-psk-secret'],
-            requiredConfigSet = this._settings['fortigate-psk-secret'] &&
-            this._settings['fortigate-psk-secret'].split(',') || [],
-            heartBeatInterval = this._settings['heartbeat-interval'] ||
+            requiredConfigSet =
+                (this._settings['fortigate-psk-secret'] &&
+                    this._settings['fortigate-psk-secret'].split(',')) ||
+                [],
+            heartBeatInterval =
+                this._settings['heartbeat-interval'] ||
                 AutoscaleHandler.DEFAULT_HEART_BEAT_INTERVAL,
             fazConfig = '',
             fazIp;
@@ -146,7 +152,7 @@ module.exports = class AutoscaleHandler {
             // check if second nic is enabled, config for the second nic must be prepended to
             // base config
             if (this._settings['enable-second-nic'] === 'true') {
-                baseConfig = await this.getConfigSet('port2config') + baseConfig;
+                baseConfig = (await this.getConfigSet('port2config')) + baseConfig;
             }
             for (let configset of requiredConfigSet) {
                 let [name, selected] = configset.trim().split('-');
@@ -157,12 +163,14 @@ module.exports = class AutoscaleHandler {
                             configContent += await this.getConfigSet('internalelbweb');
                             configContent += await this.getConfigSet(name);
                             break;
-                            // handle fortianalyzer logging config
+                        // handle fortianalyzer logging config
                         case 'storelogtofaz':
                             fazConfig = await this.getConfigSet(name);
                             fazIp = await this.getFazIp();
                             configContent += fazConfig.replace(
-                                new RegExp('{FAZ_PRIVATE_IP}', 'gm'), fazIp);
+                                new RegExp('{FAZ_PRIVATE_IP}', 'gm'),
+                                fazIp
+                            );
                             break;
                         case 'extrastaticroutes':
                             configContent += await this.getConfigSet('extrastaticroutes');
@@ -178,20 +186,30 @@ module.exports = class AutoscaleHandler {
             baseConfig += configContent;
 
             baseConfig = baseConfig
-                .replace(new RegExp('{SYNC_INTERFACE}', 'gm'),
-                    process.env.FORTIGATE_SYNC_INTERFACE ?
-                        process.env.FORTIGATE_SYNC_INTERFACE : 'port1')
+                .replace(
+                    new RegExp('{SYNC_INTERFACE}', 'gm'),
+                    process.env.FORTIGATE_SYNC_INTERFACE
+                        ? process.env.FORTIGATE_SYNC_INTERFACE
+                        : 'port1'
+                )
                 .replace(new RegExp('{EXTERNAL_INTERFACE}', 'gm'), 'port1')
                 .replace(new RegExp('{INTERNAL_INTERFACE}', 'gm'), 'port2')
                 .replace(new RegExp('{PSK_SECRET}', 'gm'), psksecret)
-                .replace(new RegExp('{TRAFFIC_PORT}', 'gm'),
-                    process.env.FORTIGATE_TRAFFIC_PORT ? process.env.FORTIGATE_TRAFFIC_PORT : 443)
-                .replace(new RegExp('{ADMIN_PORT}', 'gm'),
-                    process.env.FORTIGATE_ADMIN_PORT ? process.env.FORTIGATE_ADMIN_PORT : 8443)
+                .replace(
+                    new RegExp('{TRAFFIC_PORT}', 'gm'),
+                    process.env.FORTIGATE_TRAFFIC_PORT ? process.env.FORTIGATE_TRAFFIC_PORT : 443
+                )
+                .replace(
+                    new RegExp('{ADMIN_PORT}', 'gm'),
+                    process.env.FORTIGATE_ADMIN_PORT ? process.env.FORTIGATE_ADMIN_PORT : 8443
+                )
                 .replace(new RegExp('{HEART_BEAT_INTERVAL}', 'gm'), heartBeatInterval)
-                .replace(new RegExp('{INTERNAL_ELB_DNS}', 'gm'),
-                    process.env.FORTIGATE_INTERNAL_ELB_DNS ?
-                        process.env.FORTIGATE_INTERNAL_ELB_DNS : '');
+                .replace(
+                    new RegExp('{INTERNAL_ELB_DNS}', 'gm'),
+                    process.env.FORTIGATE_INTERNAL_ELB_DNS
+                        ? process.env.FORTIGATE_INTERNAL_ELB_DNS
+                        : ''
+                );
         }
         return baseConfig;
     }
@@ -206,8 +224,7 @@ module.exports = class AutoscaleHandler {
      * @param {*} event event from the handling call. structure varies per platform.
      */
     async handleSyncedCallback() {
-        const
-            instanceId = this._requestInfo.instanceId,
+        const instanceId = this._requestInfo.instanceId,
             interval = this._requestInfo.interval;
 
         let parameters = {},
@@ -220,19 +237,26 @@ module.exports = class AutoscaleHandler {
         parameters.instanceId = instanceId;
         parameters.scalingGroupName = this.scalingGroupName;
         // get selfinstance
-        this._selfInstance = this._selfInstance || await this.platform.describeInstance(parameters);
+        this._selfInstance =
+            this._selfInstance || (await this.platform.describeInstance(parameters));
 
         if (!this._selfInstance) {
             // not trusted
-            throw new Error(`Unauthorized calling instance (vmid: ${instanceId}). ` +
-                'Instance not found in scale set.');
+            throw new Error(
+                `Unauthorized calling instance (vmid: ${instanceId}). ` +
+                    'Instance not found in scale set.'
+            );
         }
         // handle hb monitor
         // get self health check
-        this._selfHealthCheck = this._selfHealthCheck ||
-            await this.platform.getInstanceHealthCheck({
-                instanceId: this._selfInstance.instanceId
-            }, interval);
+        this._selfHealthCheck =
+            this._selfHealthCheck ||
+            (await this.platform.getInstanceHealthCheck(
+                {
+                    instanceId: this._selfInstance.instanceId
+                },
+                interval
+            ));
         // if self is already out-of-sync, skip the monitoring logics
         if (this._selfHealthCheck && !this._selfHealthCheck.inSync) {
             return {};
@@ -241,11 +265,14 @@ module.exports = class AutoscaleHandler {
         await this.retrieveMaster();
 
         // get the current master instance info for comparisons later
-        let masterInstanceId = this._masterRecord && this._masterRecord.instanceId || null;
-        let masterElectionVote = this._masterRecord && this._masterRecord.voteState || null;
+        let masterInstanceId = (this._masterRecord && this._masterRecord.instanceId) || null;
+        let masterElectionVote = (this._masterRecord && this._masterRecord.voteState) || null;
 
-        if (this._masterInfo && this._selfInstance.instanceId === this._masterInfo.instanceId &&
-            this.scalingGroupName === this.masterScalingGroupName) {
+        if (
+            this._masterInfo &&
+            this._selfInstance.instanceId === this._masterInfo.instanceId &&
+            this.scalingGroupName === this.masterScalingGroupName
+        ) {
             // this instance is the current master, skip checking master election
             // use master health check result as self health check result
             isMaster = true;
@@ -253,9 +280,9 @@ module.exports = class AutoscaleHandler {
         } else if (this._selfHealthCheck && !this._selfHealthCheck.healthy) {
             // this instance isn't the current master
             // if this instance is unhealth, skip master election check
-
-        } else if (!(this._masterInfo && this._masterHealthCheck &&
-            this._masterHealthCheck.healthy)) {
+        } else if (
+            !(this._masterInfo && this._masterHealthCheck && this._masterHealthCheck.healthy)
+        ) {
             // this instance isn't the current master
             // if no master or master is unhealthy, try to run a master election or check if a
             // master election is running then wait for it to end
@@ -267,9 +294,11 @@ module.exports = class AutoscaleHandler {
                 validator = masterInfo => {
                     // i am the new master, don't wait, continue to finalize the election.
                     // should return true to end the waiting.
-                    if (masterInfo &&
+                    if (
+                        masterInfo &&
                         masterInfo.primaryPrivateIpAddress ===
-                        this._selfInstance.primaryPrivateIpAddress) {
+                            this._selfInstance.primaryPrivateIpAddress
+                    ) {
                         isMaster = true;
                         return true;
                     } else if (this._masterRecord && this._masterRecord.voteState === 'pending') {
@@ -311,7 +340,8 @@ module.exports = class AutoscaleHandler {
                 // counter to set a time based condition to end this waiting. If script execution
                 // time is close to its timeout (6 seconds - abount 1 inteval + 1 second), ends the
                 // waiting to allow for the rest of logic to run
-                counter = currentCount => { // eslint-disable-line no-unused-vars
+                counter = () => {
+                    // eslint-disable-line no-unused-vars
                     if (Date.now() < process.env.SCRIPT_EXECUTION_EXPIRE_TIME - 6000) {
                         return false;
                     }
@@ -321,7 +351,11 @@ module.exports = class AutoscaleHandler {
 
             try {
                 this._masterInfo = await CoreFunctions.waitFor(
-                    promiseEmitter, validator, 5000, counter);
+                    promiseEmitter,
+                    validator,
+                    5000,
+                    counter
+                );
                 // after new master is elected, get the new master healthcheck
                 // there are two possible results here:
                 // 1. a new instance comes up and becomes the new master, master healthcheck won't
@@ -339,34 +373,50 @@ module.exports = class AutoscaleHandler {
                 // terminates this election. then continue
                 await this.retrieveMaster(null, true);
 
-                if (this._masterRecord.instanceId === this._selfInstance.instanceId &&
-                    this._masterRecord.asgName === this._selfInstance.scalingGroupName) {
+                if (
+                    this._masterRecord.instanceId === this._selfInstance.instanceId &&
+                    this._masterRecord.asgName === this._selfInstance.scalingGroupName
+                ) {
                     await this.platform.removeMasterRecord();
                 }
                 await this.removeInstance(this._selfInstance);
-                throw new Error('Failed to determine the master instance within ' +
-                    `${process.env.SCRIPT_EXECUTION_EXPIRE_TIME} seconds. This instance is unable` +
-                    ' to bootstrap. Please report this to administrators.');
+                throw new Error(
+                    'Failed to determine the master instance within ' +
+                        `${process.env.SCRIPT_EXECUTION_EXPIRE_TIME} seconds. ` +
+                        'This instance is unable to bootstrap. ' +
+                        'Please report this to administrators.'
+                );
             }
         }
 
         // check if myself is under health check monitoring
         // (master instance itself may have got its healthcheck result in some code blocks above)
-        this._selfHealthCheck = this._selfHealthCheck ||
-            await this.platform.getInstanceHealthCheck({
-                instanceId: this._selfInstance.instanceId
-            }, interval);
+        this._selfHealthCheck =
+            this._selfHealthCheck ||
+            (await this.platform.getInstanceHealthCheck(
+                {
+                    instanceId: this._selfInstance.instanceId
+                },
+                interval
+            ));
 
         // if this instance is the master instance and the master record is still pending, it will
         // finalize the master election.
-        if (this._masterInfo && this._selfInstance.instanceId === this._masterInfo.instanceId &&
+        if (
+            this._masterInfo &&
+            this._selfInstance.instanceId === this._masterInfo.instanceId &&
             this.scalingGroupName === this.masterScalingGroupName &&
-            this._masterRecord && this._masterRecord.voteState === 'pending') {
+            this._masterRecord &&
+            this._masterRecord.voteState === 'pending'
+        ) {
             isMaster = true;
-            if (!this._selfHealthCheck || this._selfHealthCheck && this._selfHealthCheck.healthy) {
+            if (
+                !this._selfHealthCheck ||
+                (this._selfHealthCheck && this._selfHealthCheck.healthy)
+            ) {
                 // if election couldn't be finalized, remove the current election so someone else
                 // could start another election
-                if (!await this.platform.finalizeMasterElection()) {
+                if (!(await this.platform.finalizeMasterElection())) {
                     await this.platform.removeMasterRecord();
                     this._masterRecord = null;
                     lifecycleShouldAbandon = true;
@@ -380,8 +430,9 @@ module.exports = class AutoscaleHandler {
         }
 
         // check whether master has changed or not
-        let currentMasterInstanceId = this._masterRecord && this._masterRecord.instanceId || null;
-        let currentMasterElectionVote = this._masterRecord && this._masterRecord.voteState || null;
+        let currentMasterInstanceId = (this._masterRecord && this._masterRecord.instanceId) || null;
+        let currentMasterElectionVote =
+            (this._masterRecord && this._masterRecord.voteState) || null;
 
         // no master (election done) before, but have a master (election done) now
         // or
@@ -393,8 +444,11 @@ module.exports = class AutoscaleHandler {
 
         // had a master (election done) before, have a master (election done) now,
         // but they have different instance id
-        if (masterElectionVote === 'done' && currentMasterElectionVote === 'done' &&
-            masterInstanceId !== currentMasterInstanceId) {
+        if (
+            masterElectionVote === 'done' &&
+            currentMasterElectionVote === 'done' &&
+            masterInstanceId !== currentMasterInstanceId
+        ) {
             masterChanged = true;
         }
 
@@ -404,9 +458,11 @@ module.exports = class AutoscaleHandler {
             await this.platform.updateHAAPRoleTag(this._selfInstance.instanceId);
         }
 
-        this.logger.info(`currentMasterInstanceId: ${currentMasterInstanceId}, ` +
-            `currentMasterElectionVote: ${currentMasterElectionVote}, ` +
-            `masterChanged: ${masterChanged}`);
+        this.logger.info(
+            `currentMasterInstanceId: ${currentMasterInstanceId}, ` +
+                `currentMasterElectionVote: ${currentMasterElectionVote}, ` +
+                `masterChanged: ${masterChanged}`
+        );
 
         // if no self healthcheck record found, this instance not under monitor. It's about the
         // time to add it to monitor. should make sure its all lifecycle actions are complete
@@ -416,36 +472,54 @@ module.exports = class AutoscaleHandler {
         // the master health status.
         if (!this._selfHealthCheck) {
             // check if a lifecycle event waiting
-            await this.completeGetConfigLifecycleAction(this._selfInstance.instanceId,
-                !lifecycleShouldAbandon);
+            await this.completeGetConfigLifecycleAction(
+                this._selfInstance.instanceId,
+                !lifecycleShouldAbandon
+            );
 
             masterIp = this._masterInfo ? this._masterInfo.primaryPrivateIpAddress : null;
             // if slave finds master is pending, don't update master ip to the health check record
-            if (!isMaster && this._masterRecord && this._masterRecord.voteState === 'pending' &&
-                this._settings['master-election-no-wait'] === 'true') {
+            if (
+                !isMaster &&
+                this._masterRecord &&
+                this._masterRecord.voteState === 'pending' &&
+                this._settings['master-election-no-wait'] === 'true'
+            ) {
                 masterIp = null;
             }
             await this.addInstanceToMonitor(this._selfInstance, interval, masterIp);
-            let logMessagMasterIp = !masterIp &&
-                this._settings['master-election-no-wait'] === 'true' ? ' without master ip)' :
-                ` master-ip: ${masterIp})`;
-            this.logger.info(`instance (id:${this._selfInstance.instanceId}, ` +
-                `master-ip: ${logMessagMasterIp}) ` +
-                `is added to monitor at timestamp: ${Date.now()}.`);
+            let logMessagMasterIp =
+                !masterIp && this._settings['master-election-no-wait'] === 'true'
+                    ? ' without master ip)'
+                    : ` master-ip: ${masterIp})`;
+            this.logger.info(
+                `instance (id:${this._selfInstance.instanceId}, ` +
+                    `master-ip: ${logMessagMasterIp}) ` +
+                    `is added to monitor at timestamp: ${Date.now()}.`
+            );
             // if this newly come-up instance is the new master, save its instance id as the
             // default password into settings because all other instance will sync password from
             // the master there's a case if users never changed the master's password, when the
             // master was torn-down, there will be no way to retrieve this original password.
             // so in this case, should keep track of the update of default password.
-            if (this._masterInfo && this._selfInstance.instanceId === this._masterInfo.instanceId &&
-                    this.scalingGroupName === this.masterScalingGroupName) {
-                await this.platform.setSettingItem('fortigate-default-password',
+            if (
+                this._masterInfo &&
+                this._selfInstance.instanceId === this._masterInfo.instanceId &&
+                this.scalingGroupName === this.masterScalingGroupName
+            ) {
+                await this.platform.setSettingItem(
+                    'fortigate-default-password',
                     this._selfInstance.instanceId,
-                    'default password comes from the new elected master.', false, false);
+                    'default password comes from the new elected master.',
+                    false,
+                    false
+                );
             }
-            return masterIp ? {
-                'master-ip': this._masterInfo.primaryPrivateIpAddress
-            } : '';
+            return masterIp
+                ? {
+                      'master-ip': this._masterInfo.primaryPrivateIpAddress
+                  }
+                : '';
         } else if (this._selfHealthCheck && this._selfHealthCheck.healthy) {
             // this instance is already in monitor. if the master has changed (i.e.: the current
             // master is different from the one this instance is holding), and the new master
@@ -455,33 +529,48 @@ module.exports = class AutoscaleHandler {
             // in-service; the master has been purged but no new master is elected yet.)
             // keep the calling instance 'in-sync'. don't update its master-ip.
 
-            masterIp = this._masterInfo && this._masterHealthCheck &&
-                this._masterHealthCheck.healthy ?
-                this._masterInfo.primaryPrivateIpAddress : this._selfHealthCheck.masterIp;
+            masterIp =
+                this._masterInfo && this._masterHealthCheck && this._masterHealthCheck.healthy
+                    ? this._masterInfo.primaryPrivateIpAddress
+                    : this._selfHealthCheck.masterIp;
             let now = Date.now();
-            await this.platform.updateInstanceHealthCheck(this._selfHealthCheck, interval,
-                masterIp, now);
-            this.logger.info(`hb record updated on (timestamp: ${now}, instance id:` +
-                `${this._selfInstance.instanceId}, ` +
-                `ip: ${this._selfInstance.primaryPrivateIpAddress}) health check ` +
-                `(${this._selfHealthCheck.healthy ? 'healthy' : 'unhealthy'}, ` +
-                `heartBeatLossCount: ${this._selfHealthCheck.heartBeatLossCount}, ` +
-                `nextHeartBeatTime: ${this._selfHealthCheck.nextHeartBeatTime}` +
-                `syncState: ${this._selfHealthCheck.syncState}).`);
-            return masterIp && this._selfHealthCheck &&
-                this._selfHealthCheck.masterIp !== masterIp ? {
-                    'master-ip': this._masterInfo.primaryPrivateIpAddress
-                } : '';
+            await this.platform.updateInstanceHealthCheck(
+                this._selfHealthCheck,
+                interval,
+                masterIp,
+                now
+            );
+            this.logger.info(
+                `hb record updated on (timestamp: ${now}, instance id:` +
+                    `${this._selfInstance.instanceId}, ` +
+                    `ip: ${this._selfInstance.primaryPrivateIpAddress}) health check ` +
+                    `(${this._selfHealthCheck.healthy ? 'healthy' : 'unhealthy'}, ` +
+                    `heartBeatLossCount: ${this._selfHealthCheck.heartBeatLossCount}, ` +
+                    `nextHeartBeatTime: ${this._selfHealthCheck.nextHeartBeatTime}` +
+                    `syncState: ${this._selfHealthCheck.syncState}).`
+            );
+            return masterIp && this._selfHealthCheck && this._selfHealthCheck.masterIp !== masterIp
+                ? {
+                      'master-ip': this._masterInfo.primaryPrivateIpAddress
+                  }
+                : '';
         } else {
-            this.logger.info('instance is unhealthy. need to remove it. healthcheck record:',
-                JSON.stringify(this._selfHealthCheck));
+            this.logger.info(
+                'instance is unhealthy. need to remove it. healthcheck record:',
+                JSON.stringify(this._selfHealthCheck)
+            );
             // for unhealthy instances, fail this instance
             // if it is previously on 'in-sync' state, mark it as 'out-of-sync' so script will stop
             // keeping it in sync and stop doing any other logics for it any longer.
             if (this._selfHealthCheck && this._selfHealthCheck.inSync) {
                 // change its sync state to 'out of sync' by updating it state one last time
-                await this.platform.updateInstanceHealthCheck(this._selfHealthCheck, interval,
-                    this._selfHealthCheck.masterIp, Date.now(), true);
+                await this.platform.updateInstanceHealthCheck(
+                    this._selfHealthCheck,
+                    interval,
+                    this._selfHealthCheck.masterIp,
+                    Date.now(),
+                    true
+                );
                 // terminate it from autoscaling group
                 await this.removeInstance(this._selfInstance);
             }
@@ -522,7 +611,8 @@ module.exports = class AutoscaleHandler {
      * The leaf property of a nested object must be a primitive.
      * @returns {String} a pasred config string
      */
-    async parseConfigSet(configSet, dataSources) { // eslint-disable-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
+    async parseConfigSet(configSet, dataSources) {
         return await configSet;
     }
 
@@ -534,19 +624,21 @@ module.exports = class AutoscaleHandler {
         if (parameters.vpnConfigSetName && parameters.vpnConfiguration) {
             // append vpnConfig to base config
             config = await this.getConfigSet(parameters.vpnConfigSetName);
-            config = await this.parseConfigSet(config,
-                {'@vpn_connection': parameters.vpnConfiguration});
+            config = await this.parseConfigSet(config, {
+                '@vpn_connection': parameters.vpnConfiguration
+            });
             this._baseConfig += config;
         }
-        config = this._baseConfig.replace(/\{CALLBACK_URL}/,parameters.callbackUrl ?
-            parameters.callbackUrl : '');
+        config = this._baseConfig.replace(
+            /\{CALLBACK_URL}/,
+            parameters.callbackUrl ? parameters.callbackUrl : ''
+        );
         return config;
     }
 
     async getSlaveConfig(parameters) {
         this._baseConfig = await this.getBaseConfig();
-        const
-            autoScaleSectionMatch = AUTOSCALE_SECTION_EXPR.exec(this._baseConfig),
+        const autoScaleSectionMatch = AUTOSCALE_SECTION_EXPR.exec(this._baseConfig),
             autoScaleSection = autoScaleSectionMatch && autoScaleSectionMatch[1],
             matches = [
                 /set\s+sync-interface\s+(.+)/.exec(autoScaleSection),
@@ -554,7 +646,8 @@ module.exports = class AutoscaleHandler {
             ];
         const [syncInterface, pskSecret] = matches.map(m => m && m[1]),
             apiEndpoint = parameters.callbackUrl;
-        let config = '', errorMessage;
+        let config = '',
+            errorMessage;
         if (!apiEndpoint) {
             errorMessage = 'Api endpoint is missing';
         }
@@ -565,26 +658,30 @@ module.exports = class AutoscaleHandler {
             errorMessage = 'psksecret is missing';
         }
         if (!pskSecret || !apiEndpoint || !(parameters.masterIp || parameters.allowHeadless)) {
-            throw new Error(`Base config is invalid (${errorMessage}): ${
-                JSON.stringify({
+            throw new Error(
+                `Base config is invalid (${errorMessage}): ${JSON.stringify({
                     syncInterface: syncInterface,
                     apiEndpoint: apiEndpoint,
                     masterIp: parameters.masterIp,
                     pskSecret: pskSecret && typeof pskSecret
-                })}`);
+                })}`
+            );
         }
         // parse TGW VPN
         if (parameters.vpnConfigSetName && parameters.vpnConfiguration) {
             // append vpnConfig to base config
             config = await this.getConfigSet(parameters.vpnConfigSetName);
-            config = await this.parseConfigSet(config,
-                {'@vpn_connection': parameters.vpnConfiguration});
+            config = await this.parseConfigSet(config, {
+                '@vpn_connection': parameters.vpnConfiguration
+            });
             this._baseConfig += config;
         }
-        const setMasterIp = !parameters.masterIp && parameters.allowHeadless ? '' :
-            `\n    set master-ip ${parameters.masterIp}`;
-        return await this._baseConfig.replace(new RegExp('set role master', 'gm'),
-            `set role slave${setMasterIp}`)
+        const setMasterIp =
+            !parameters.masterIp && parameters.allowHeadless
+                ? ''
+                : `\n    set master-ip ${parameters.masterIp}`;
+        return await this._baseConfig
+            .replace(new RegExp('set role master', 'gm'), `set role slave${setMasterIp}`)
             .replace(new RegExp('{CALLBACK_URL}', 'gm'), parameters.callbackUrl);
     }
 
@@ -603,8 +700,11 @@ module.exports = class AutoscaleHandler {
         // if there's a complete election, get master health check
         if (this._masterRecord && this._masterRecord.voteState === 'done') {
             // if master is unhealthy, we need a new election
-            if (!this._masterHealthCheck ||
-                !this._masterHealthCheck.healthy || !this._masterHealthCheck.inSync) {
+            if (
+                !this._masterHealthCheck ||
+                !this._masterHealthCheck.healthy ||
+                !this._masterHealthCheck.inSync
+            ) {
                 purgeMaster = needElection = true;
             } else {
                 purgeMaster = needElection = false;
@@ -631,23 +731,28 @@ module.exports = class AutoscaleHandler {
                 electionLock = await this.putMasterElectionVote(this._selfInstance, purgeMaster);
                 if (electionLock) {
                     // yes, you run it!
-                    this.logger.info(`This instance (id: ${this._selfInstance.instanceId})` +
-                        ' is running an election.');
+                    this.logger.info(
+                        `This instance (id: ${this._selfInstance.instanceId})` +
+                            ' is running an election.'
+                    );
                     try {
                         // (diagram: elect new master from queue (existing instances))
                         electionComplete = await this.electMaster();
                         this.logger.info(`Election completed: ${electionComplete}`);
                         // (diagram: master exists?)
                         this._masterRecord = null;
-                        this._masterInfo = electionComplete && await this.getMasterInfo();
+                        this._masterInfo = electionComplete && (await this.getMasterInfo());
                     } catch (error) {
                         this.logger.error('Something went wrong in the master election.');
                     }
                 }
-            } else { // i am not in the master group, i am not allowed to hold a master election
-                this.logger.info(`This instance (id: ${this._selfInstance.instanceId}) not in ` +
-                'the master group, cannot hold election but wait for someone else to hold ' +
-                'an election.');
+            } else {
+                // i am not in the master group, i am not allowed to hold a master election
+                this.logger.info(
+                    `This instance (id: ${this._selfInstance.instanceId}) not in ` +
+                        'the master group, ' +
+                        'cannot hold election but wait for someone else to hold an election.'
+                );
             }
         }
         return Promise.resolve(this._masterInfo); // return the new master
@@ -660,14 +765,17 @@ module.exports = class AutoscaleHandler {
         this.logger.info('calling getMasterInfo');
         let instanceId;
         try {
-            this._masterRecord = this._masterRecord || await this.platform.getMasterRecord();
+            this._masterRecord = this._masterRecord || (await this.platform.getMasterRecord());
             instanceId = this._masterRecord && this._masterRecord.instanceId;
         } catch (ex) {
             this.logger.error(ex);
         }
-        return this._masterRecord && await this.platform.describeInstance({
-            instanceId: instanceId
-        });
+        return (
+            this._masterRecord &&
+            (await this.platform.describeInstance({
+                instanceId: instanceId
+            }))
+        );
     }
 
     /**
@@ -690,8 +798,12 @@ module.exports = class AutoscaleHandler {
             }
             return await this.platform.putMasterRecord(candidateInstance, 'pending', 'new');
         } catch (ex) {
-            this.logger.warn('exception while putMasterElectionVote',
-                JSON.stringify(candidateInstance), JSON.stringify(purgeMasterRecord), ex.stack);
+            this.logger.warn(
+                'exception while putMasterElectionVote',
+                JSON.stringify(candidateInstance),
+                JSON.stringify(purgeMasterRecord),
+                ex.stack
+            );
             return false;
         }
     }
@@ -702,7 +814,7 @@ module.exports = class AutoscaleHandler {
      */
     async electMaster() {
         // return the current master record
-        return !!await this.platform.getMasterRecord();
+        return !!(await this.platform.getMasterRecord());
     }
 
     async completeMasterElection(ip) {
@@ -757,7 +869,7 @@ module.exports = class AutoscaleHandler {
         if (!(desiredCapacity && minSize && maxSize) && groupSetting) {
             return groupSetting;
         }
-        return {desiredCapacity: desiredCapacity, minSize: minSize, maxSize: maxSize};
+        return { desiredCapacity: desiredCapacity, minSize: minSize, maxSize: maxSize };
     }
 
     /**
@@ -766,17 +878,22 @@ module.exports = class AutoscaleHandler {
      * @param {Object} settings settings to save
      */
     async saveSettings(settings) {
-        let tasks = [], errorTasks = [];
+        let tasks = [],
+            errorTasks = [];
         for (let [key, value] of Object.entries(settings)) {
-            let keyName = null, description = null, jsonEncoded = false, editable = false;
+            let keyName = null,
+                description = null,
+                jsonEncoded = false,
+                editable = false;
             switch (key.toLowerCase()) {
                 case 'servicetype':
                     // ignore service type
                     break;
                 case 'deploymentsettingssaved':
                     keyName = 'deployment-settings-saved';
-                    description = 'A flag setting item that indicates all deployment' +
-                    'settings have been saved.';
+                    description =
+                        'A flag setting item that indicates all deployment' +
+                        'settings have been saved.';
                     editable = false;
                     break;
                 case 'desiredcapacity':
@@ -834,8 +951,8 @@ module.exports = class AutoscaleHandler {
                     break;
                 case 'fortigatesyncinterface':
                     keyName = 'fortigate-sync-interface';
-                    description = 'The interface the FortiGate uses for configuration ' +
-                        'synchronization.';
+                    description =
+                        'The interface the FortiGate uses for configuration ' + 'synchronization.';
                     editable = true;
                     break;
                 case 'lifecyclehooktimeout':
@@ -850,7 +967,8 @@ module.exports = class AutoscaleHandler {
                     break;
                 case 'masterelectionnowait':
                     keyName = 'master-election-no-wait';
-                    description = 'Do not wait for the new master to come up. This FortiGate ' +
+                    description =
+                        'Do not wait for the new master to come up. This FortiGate ' +
                         'can receive the new master ip in one of its following heartbeat sync.';
                     editable = true;
                     break;
@@ -886,28 +1004,32 @@ module.exports = class AutoscaleHandler {
                     break;
                 case 'transitgatewayid':
                     keyName = 'transit-gateway-id';
-                    description = 'The ID of the Transit Gateway the FortiGate Autoscale is ' +
-                    'attached to.';
+                    description =
+                        'The ID of the Transit Gateway the FortiGate Autoscale is ' +
+                        'attached to.';
                     editable = false;
                     break;
                 case 'enabletransitgatewayvpn':
                     keyName = 'enable-transit-gateway-vpn';
                     value = value && value !== 'false' ? 'true' : 'false';
-                    description = 'Toggle ON / OFF the Transit Gateway VPN creation on each ' +
-                    'FortiGate instance';
+                    description =
+                        'Toggle ON / OFF the Transit Gateway VPN creation on each ' +
+                        'FortiGate instance';
                     editable = false;
                     break;
                 case 'enablesecondnic':
                     keyName = 'enable-second-nic';
                     value = value && value !== 'false' ? 'true' : 'false';
-                    description = 'Toggle ON / OFF the secondary eni creation on each ' +
-                    'FortiGate instance';
+                    description =
+                        'Toggle ON / OFF the secondary eni creation on each ' +
+                        'FortiGate instance';
                     editable = false;
                     break;
                 case 'bgpasn':
                     keyName = 'bgp-asn';
-                    description = 'The BGP Autonomous System Number of the Customer Gateway ' +
-                    'of each FortiGate instance in the Auto Scaling Group.';
+                    description =
+                        'The BGP Autonomous System Number of the Customer Gateway ' +
+                        'of each FortiGate instance in the Auto Scaling Group.';
                     editable = true;
                     break;
                 case 'transitgatewayvpnhandlername':
@@ -928,16 +1050,24 @@ module.exports = class AutoscaleHandler {
                     break;
             }
             if (keyName) {
-                tasks.push(this.platform
-                    .setSettingItem(keyName, value, description, jsonEncoded, editable)
-                    .catch(error => {
-                        this.logger.error(`failed to save setting for key: ${keyName}. ` +
-                            `Error: ${JSON.stringify(
-                                error instanceof Error ? {
-                                    message: error.message, stack: error.stack } : error
-                            )}`);
-                        errorTasks.push({key: keyName, value: value});
-                    }));
+                tasks.push(
+                    this.platform
+                        .setSettingItem(keyName, value, description, jsonEncoded, editable)
+                        .catch(error => {
+                            this.logger.error(
+                                `failed to save setting for key: ${keyName}. ` +
+                                    `Error: ${JSON.stringify(
+                                        error instanceof Error
+                                            ? {
+                                                  message: error.message,
+                                                  stack: error.stack
+                                              }
+                                            : error
+                                    )}`
+                            );
+                            errorTasks.push({ key: keyName, value: value });
+                        })
+                );
             }
         }
         await Promise.all(tasks);
@@ -946,7 +1076,7 @@ module.exports = class AutoscaleHandler {
 
     async updateCapacity(desiredCapacity, minSize, maxSize) {
         await this.throwNotImplementedException();
-        return null || desiredCapacity && minSize && maxSize;
+        return null || (desiredCapacity && minSize && maxSize);
     }
 
     async checkAutoScalingGroupState() {
@@ -967,8 +1097,10 @@ module.exports = class AutoscaleHandler {
     }
 
     async addInstanceToMonitor(instance, heartBeatInterval, masterIp = 'null') {
-        return await this.throwNotImplementedException() ||
-            instance && heartBeatInterval && masterIp;
+        return (
+            (await this.throwNotImplementedException()) ||
+            (instance && heartBeatInterval && masterIp)
+        );
     }
 
     async removeInstanceFromMonitor(instanceId) {
@@ -982,10 +1114,10 @@ module.exports = class AutoscaleHandler {
             this._masterHealthCheck = null;
             this._masterRecord = null;
         }
-        if (!this._masterInfo && (!filters || filters && filters.masterInfo)) {
+        if (!this._masterInfo && (!filters || (filters && filters.masterInfo))) {
             this._masterInfo = await this.getMasterInfo();
         }
-        if (!this._masterHealthCheck && (!filters || filters && filters.masterHealthCheck)) {
+        if (!this._masterHealthCheck && (!filters || (filters && filters.masterHealthCheck))) {
             if (!this._masterInfo) {
                 this._masterInfo = await this.getMasterInfo();
             }
@@ -996,7 +1128,7 @@ module.exports = class AutoscaleHandler {
                 });
             }
         }
-        if (!this._masterRecord && (!filters || filters && filters.masterRecord)) {
+        if (!this._masterRecord && (!filters || (filters && filters.masterRecord))) {
             this._masterRecord = await this.platform.getMasterRecord();
         }
         return {
@@ -1014,9 +1146,15 @@ module.exports = class AutoscaleHandler {
             await this.retrieveMaster();
             // if has master health check record, make it out-of-sync
             if (this._masterInfo && this._masterHealthCheck) {
-                asyncTasks.push(this.platform.updateInstanceHealthCheck(this._masterHealthCheck,
-                    AutoscaleHandler.NO_HEART_BEAT_INTERVAL_SPECIFIED,
-                    this._masterInfo.primaryPrivateIpAddress, Date.now(), true));
+                asyncTasks.push(
+                    this.platform.updateInstanceHealthCheck(
+                        this._masterHealthCheck,
+                        AutoscaleHandler.NO_HEART_BEAT_INTERVAL_SPECIFIED,
+                        this._masterInfo.primaryPrivateIpAddress,
+                        Date.now(),
+                        true
+                    )
+                );
             }
             asyncTasks.push(
                 this.platform.removeMasterRecord(),
@@ -1025,20 +1163,27 @@ module.exports = class AutoscaleHandler {
             let result = await Promise.all(asyncTasks);
             return !!result;
         } catch (error) {
-            this.logger.error('called purgeMaster > error: ', JSON.stringify(
-                error instanceof Error ? {
-                    message: error.message, stack: error.stack } : error
-            ));
+            this.logger.error(
+                'called purgeMaster > error: ',
+                JSON.stringify(
+                    error instanceof Error
+                        ? {
+                              message: error.message,
+                              stack: error.stack
+                          }
+                        : error
+                )
+            );
             return false;
         }
     }
 
     async deregisterMasterInstance(instance) {
-        return await this.throwNotImplementedException() || instance;
+        return (await this.throwNotImplementedException()) || instance;
     }
 
     async removeInstance(instance) {
-        return await this.throwNotImplementedException() || instance;
+        return (await this.throwNotImplementedException()) || instance;
     }
 
     setScalingGroup(master, self) {

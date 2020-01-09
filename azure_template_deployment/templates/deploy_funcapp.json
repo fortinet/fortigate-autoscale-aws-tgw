@@ -17,11 +17,7 @@
         "StorageAccountType": {
             "type": "string",
             "defaultValue": "Standard_LRS",
-            "allowedValues": [
-                "Standard_LRS",
-                "Standard_GRS",
-                "Standard_RAGRS"
-            ],
+            "allowedValues": ["Standard_LRS", "Standard_GRS", "Standard_RAGRS"],
             "metadata": {
                 "description": "Storage Account Type."
             }
@@ -104,7 +100,8 @@
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
     },
-    "resources": [{
+    "resources": [
+        {
             "apiVersion": "2015-04-08",
             "type": "Microsoft.DocumentDb/databaseAccounts",
             "name": "[parameters('CosmosDBName')]",
@@ -123,23 +120,19 @@
             "sku": {
                 "name": "[parameters('StorageAccountType')]"
             },
-            "resources": [{
+            "resources": [
+                {
                     "name": "default/configset",
                     "type": "blobServices/containers",
                     "apiVersion": "2018-03-01-preview",
-                    "dependsOn": [
-                        "[variables('storageAccountName')]"
-                    ]
+                    "dependsOn": ["[variables('storageAccountName')]"]
                 },
                 {
                     "name": "default/fgt-asg-license",
                     "type": "blobServices/containers",
                     "apiVersion": "2018-03-01-preview",
-                    "dependsOn": [
-                        "[variables('storageAccountName')]"
-                    ]
+                    "dependsOn": ["[variables('storageAccountName')]"]
                 }
-
             ]
         },
         {
@@ -167,7 +160,8 @@
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
                 "siteConfig": {
-                    "appSettings": [{
+                    "appSettings": [
+                        {
                             "name": "AzureWebJobsDashboard",
                             "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
                         },

@@ -30,7 +30,7 @@ class DefaultLogger extends Logger {
         super(loggerObject);
     }
     log() {
-        this._logCount ++;
+        this._logCount++;
         if (!(this.level && this.level.log === false)) {
             if (this._outputQueue && !this._flushing) {
                 this.enQueue('log', arguments);
@@ -41,7 +41,7 @@ class DefaultLogger extends Logger {
         return this;
     }
     debug() {
-        this._debugCount ++;
+        this._debugCount++;
         if (!(this.level && this.level.debug === false)) {
             if (this._outputQueue && !this._flushing) {
                 this.enQueue('debug', arguments);
@@ -52,7 +52,7 @@ class DefaultLogger extends Logger {
         return this;
     }
     info() {
-        this._infoCount ++;
+        this._infoCount++;
         if (!(this.level && this.level.info === false)) {
             if (this._outputQueue && !this._flushing) {
                 this.enQueue('info', arguments);
@@ -63,7 +63,7 @@ class DefaultLogger extends Logger {
         return this;
     }
     warn() {
-        this._warnCount ++;
+        this._warnCount++;
         if (!(this.level && this.level.warn === false)) {
             if (this._outputQueue && !this._flushing) {
                 this.enQueue('warn', arguments);
@@ -74,7 +74,7 @@ class DefaultLogger extends Logger {
         return this;
     }
     error() {
-        this._errorCount ++;
+        this._errorCount++;
         if (!(this.level && this.level.error === false)) {
             if (this._outputQueue && !this._flushing) {
                 this.enQueue('error', arguments);
@@ -90,8 +90,10 @@ class DefaultLogger extends Logger {
         }
         let outputContent = '';
         if (this._queue.length > 0) {
-            outputContent += `Queued Logs: [log: ${this._logCount}, info: ${this._infoCount}, ` +
-            `debug: ${this._debugCount}, warn: ${this._warnCount}, error: ${this._errorCount}]\n`;
+            outputContent +=
+                `Queued Logs: [log: ${this._logCount}, info: ${this._infoCount}, ` +
+                `debug: ${this._debugCount}, ` +
+                `warn: ${this._warnCount}, error: ${this._errorCount}]\n`;
         }
         while (this._queue.length > 0) {
             let item = this._queue.shift();
@@ -101,7 +103,6 @@ class DefaultLogger extends Logger {
                     outputContent += `${arg}\n`;
                 });
             }
-
         }
         this._flushing = true;
         switch (level) {
@@ -160,7 +161,9 @@ const sleep = ms => {
  * will end at the given number of attempts. Default is 12.
  */
 const waitFor = async (promiseEmitter, validator, interval = 5000, counter = null) => {
-    let currentCount = 0, result, maxCount;
+    let currentCount = 0,
+        result,
+        maxCount;
     if (typeof counter !== 'function') {
         maxCount = !counter || isNaN(counter) ? 12 : counter;
         counter = count => {
@@ -172,18 +175,20 @@ const waitFor = async (promiseEmitter, validator, interval = 5000, counter = nul
     }
     try {
         result = await promiseEmitter();
-        while (!(await validator(result) || await counter(currentCount))) {
+        while (!((await validator(result)) || (await counter(currentCount)))) {
             await sleep(interval);
             result = await promiseEmitter();
-            currentCount ++;
+            currentCount++;
         }
     } catch (error) {
         let message = '';
         if (error instanceof Error) {
             message = error.message;
         } else {
-            message = error && typeof error.toString === 'function' ?
-                error.toString() : JSON.stringify(error);
+            message =
+                error && typeof error.toString === 'function'
+                    ? error.toString()
+                    : JSON.stringify(error);
         }
         return Promise.reject(`failed to wait due to error: ${message}`);
     }
@@ -197,7 +202,10 @@ const waitFor = async (promiseEmitter, validator, interval = 5000, counter = nul
  * @returns {String} checksum
  */
 function calStringChecksum(str, algorithm = 'sha1') {
-    return crypto.createHash(algorithm).update(str, 'utf8').digest('hex');
+    return crypto
+        .createHash(algorithm)
+        .update(str, 'utf8')
+        .digest('hex');
 }
 
 function configSetResourceFinder(resObject, nodePath) {
@@ -216,13 +224,14 @@ function configSetResourceFinder(resObject, nodePath) {
             ref = null;
             return false;
         } else {
-            ref = Array.isArray(ref[nodeName]) && ref[nodeName].length > 0 ?
-                ref[nodeName][0] : ref[nodeName];
+            ref =
+                Array.isArray(ref[nodeName]) && ref[nodeName].length > 0
+                    ? ref[nodeName][0]
+                    : ref[nodeName];
         }
     });
     return ref;
 }
-
 
 exports.DefaultLogger = DefaultLogger;
 exports.moduleRuntimeId = () => moduleId;

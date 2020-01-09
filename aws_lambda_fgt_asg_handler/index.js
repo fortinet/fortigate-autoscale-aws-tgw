@@ -10,8 +10,10 @@ const ftgtAutoscaleAws = require('fortigate-autoscale-aws');
 // for log output [object object] issues, check util.inspect(result, false, null) for more info
 const logger = new ftgtAutoscaleAws.AutoScaleCore.DefaultLogger(console);
 const autoscaleHandler = new ftgtAutoscaleAws.AwsAutoscaleHandler();
-if (process.env.DEBUG_LOGGER_OUTPUT_QUEUE_ENABLED &&
-    process.env.DEBUG_LOGGER_OUTPUT_QUEUE_ENABLED.toLowerCase() === 'true') {
+if (
+    process.env.DEBUG_LOGGER_OUTPUT_QUEUE_ENABLED &&
+    process.env.DEBUG_LOGGER_OUTPUT_QUEUE_ENABLED.toLowerCase() === 'true'
+) {
     logger.outputQueue = true;
     if (process.env.DEBUG_LOGGER_TIMEZONE_OFFSET) {
         logger.timeZoneOffset = process.env.DEBUG_LOGGER_TIMEZONE_OFFSET;
@@ -49,8 +51,11 @@ exports.AutoscaleHandler = async (event, context, callback) => {
 
 async function initiate(desiredCapacity, minSize, maxSize, subnetPairs) {
     await autoscaleHandler.saveSubnetPairs(subnetPairs);
-    await autoscaleHandler.saveSettings({desiredCapacity: desiredCapacity,
-        minSize: minSize, maxSize: maxSize});
+    await autoscaleHandler.saveSettings({
+        desiredCapacity: desiredCapacity,
+        minSize: minSize,
+        maxSize: maxSize
+    });
 }
 
 async function saveSettings(settings) {
@@ -61,7 +66,11 @@ async function restart() {
     await init();
     // autoscaleHandler = autoscaleHandler || new ftgtAutoscaleAws.autoscaleHandler();
     await autoscaleHandler.updateCapacity(
-        autoscaleHandler._settings['payg-auto-scaling-group-name'], 0, 0, null);
+        autoscaleHandler._settings['payg-auto-scaling-group-name'],
+        0,
+        0,
+        null
+    );
     // delete master election result
     await autoscaleHandler.resetMasterElection();
     // set desired capacity & min size from saved setting to start auto scaling again
@@ -78,13 +87,19 @@ async function restart() {
         );
     } else {
         await autoscaleHandler.updateCapacity(
-            autoscaleHandler._settings['payg-auto-scaling-group-name'], 1, 1, settings.maxSize);
+            autoscaleHandler._settings['payg-auto-scaling-group-name'],
+            1,
+            1,
+            settings.maxSize
+        );
         if (settings.desiredCapacity > 1) {
             await ftgtAutoscaleAws.AutoScaleCore.Functions.sleep(60000);
             await autoscaleHandler.updateCapacity(
                 autoscaleHandler._settings['payg-auto-scaling-group-name'],
                 settings.desiredCapacity,
-                settings.minSize, settings.maxSize);
+                settings.minSize,
+                settings.maxSize
+            );
         }
     }
 }
@@ -93,10 +108,18 @@ async function stop() {
     await init();
     if (autoscaleHandler._settings['enable-hybrid-licensing'] === 'true') {
         await autoscaleHandler.updateCapacity(
-            autoscaleHandler._settings['byol-auto-scaling-group-name'], 0, 0, null);
+            autoscaleHandler._settings['byol-auto-scaling-group-name'],
+            0,
+            0,
+            null
+        );
     }
     await autoscaleHandler.updateCapacity(
-        autoscaleHandler._settings['payg-auto-scaling-group-name'], 0, 0, null);
+        autoscaleHandler._settings['payg-auto-scaling-group-name'],
+        0,
+        0,
+        null
+    );
     // delete master election result
     await autoscaleHandler.resetMasterElection();
 }

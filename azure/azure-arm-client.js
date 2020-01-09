@@ -12,7 +12,6 @@ const MultiCloudCore = require('fortigate-autoscale-core');
 var logger = new MultiCloudCore.DefaultLogger(console);
 var credentials, token;
 
-
 async function getNicsForVirtualMachine(virtualMachine, appVersion) {
     let networkInterfaces = await getResource(`${virtualMachine.id}/networkInterfaces`, appVersion);
     if (networkInterfaces.value) {
@@ -34,7 +33,8 @@ class VirtualMachineScaleSetApiClient {
      * @param {String} instanceId virtualmachine id
      */
     async getVirtualMachine(instanceId) {
-        let resourceId = `/subscriptions/${this.subscriptionId}/resourceGroups/` +
+        let resourceId =
+            `/subscriptions/${this.subscriptionId}/resourceGroups/` +
             `${this.resourceGroupName}/providers/Microsoft.Compute/` +
             `virtualMachineScaleSets/${this.scaleSetName}/virtualMachines/${instanceId}`;
         try {
@@ -56,9 +56,10 @@ class VirtualMachineScaleSetApiClient {
      * @param {String} scaleSetName the scale set name
      */
     async listVirtualMachines() {
-        let resourceId = `/subscriptions/${this.subscriptionId}/resourceGroups/` +
-        `${this.resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/` +
-        `${this.scaleSetName}/virtualMachines`;
+        let resourceId =
+            `/subscriptions/${this.subscriptionId}/resourceGroups/` +
+            `${this.resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/` +
+            `${this.scaleSetName}/virtualMachines`;
         try {
             let response = await getResource(resourceId, this.apiVersion);
             return response.value;
@@ -97,13 +98,19 @@ class VirtualMachineScaleSetApiClient {
      */
     /* eslint-enable max-len */
     async deleteInstances(instanceIds) {
-        let resourceId = `/subscriptions/${this.subscriptionId}/resourceGroups/` +
+        let resourceId =
+            `/subscriptions/${this.subscriptionId}/resourceGroups/` +
             `${this.resourceGroupName}/providers/Microsoft.Compute/` +
             `virtualMachineScaleSets/${this.scaleSetName}/delete`;
         try {
-            let result = await AzureArmApiCall('post', resourceId, {
-                instanceIds: instanceIds
-            }, this.apiVersion);
+            let result = await AzureArmApiCall(
+                'post',
+                resourceId,
+                {
+                    instanceIds: instanceIds
+                },
+                this.apiVersion
+            );
             if (result && (result.statusCode === 200 || result.statusCode === 202)) {
                 return true;
             }
@@ -135,7 +142,11 @@ class VirtualMachineScaleSetApiClient {
                     break;
                 }
             } catch (error) {
-                logger.warn(`getVirtualMachineByIp > error querying for networkInterface: ${JSON.stringify(error)}`); // eslint-disable-line max-len
+                logger.warn(
+                    `getVirtualMachineByIp > error querying for networkInterface: ${JSON.stringify(
+                        error
+                    )}`
+                ); // eslint-disable-line max-len
             }
         }
         logger.info('called getVirtualMachineByIp.');
@@ -153,9 +164,8 @@ class CosmosDbApiClient {
      * API ref https://docs.microsoft.com/en-us/rest/api/cosmos-db/list-databases
      */
     async listDataBases() {
-        let date = (new Date()).toUTCString();
-        let _token = getAuthorizationTokenUsingMasterKey('get', 'dbs', '', date,
-            this.masterKey);
+        let date = new Date().toUTCString();
+        let _token = getAuthorizationTokenUsingMasterKey('get', 'dbs', '', date, this.masterKey);
         let path = `https://${this.dbAccount}.documents.azure.com/dbs`;
         let headers = {
             Authorization: _token,
@@ -164,19 +174,22 @@ class CosmosDbApiClient {
         };
         return await new Promise(function(resolve, reject) {
             // use GET here
-            request.get({
-                url: path,
-                headers: headers,
-                json: true
-            }, function(error, response) {
-                if (error) {
-                    reject(error);
-                } else if (response.statusCode === 200) {
-                    resolve(response);
-                } else {
-                    reject(response);
+            request.get(
+                {
+                    url: path,
+                    headers: headers,
+                    json: true
+                },
+                function(error, response) {
+                    if (error) {
+                        reject(error);
+                    } else if (response.statusCode === 200) {
+                        resolve(response);
+                    } else {
+                        reject(response);
+                    }
                 }
-            });
+            );
         });
     }
 
@@ -185,9 +198,8 @@ class CosmosDbApiClient {
      * @param {String} dbName the db name to create
      */
     async createDatabase(dbName) {
-        let date = (new Date()).toUTCString();
-        let _token = getAuthorizationTokenUsingMasterKey('post', 'dbs', '', date,
-            this.masterKey);
+        let date = new Date().toUTCString();
+        let _token = getAuthorizationTokenUsingMasterKey('post', 'dbs', '', date, this.masterKey);
         let path = `https://${this.dbAccount}.documents.azure.com/dbs`;
         let headers = {
             Authorization: _token,
@@ -197,22 +209,25 @@ class CosmosDbApiClient {
         };
         return await new Promise(function(resolve, reject) {
             // use POST here
-            request.post({
-                url: path,
-                headers: headers,
-                body: {
-                    id: dbName
+            request.post(
+                {
+                    url: path,
+                    headers: headers,
+                    body: {
+                        id: dbName
+                    },
+                    json: true
                 },
-                json: true
-            }, function(error, response) {
-                if (error) {
-                    reject(error);
-                } else if (response.statusCode === 201 || response.statusCode === 409) {
-                    resolve(response);
-                } else {
-                    reject(response);
+                function(error, response) {
+                    if (error) {
+                        reject(error);
+                    } else if (response.statusCode === 201 || response.statusCode === 409) {
+                        resolve(response);
+                    } else {
+                        reject(response);
+                    }
                 }
-            });
+            );
         });
     }
 
@@ -221,9 +236,14 @@ class CosmosDbApiClient {
      * @param {String} dbName the db name to list collections
      */
     async listCollections(dbName) {
-        let date = (new Date()).toUTCString();
-        let _token = getAuthorizationTokenUsingMasterKey('get', 'colls', `dbs/${dbName}`, date,
-            this.masterKey);
+        let date = new Date().toUTCString();
+        let _token = getAuthorizationTokenUsingMasterKey(
+            'get',
+            'colls',
+            `dbs/${dbName}`,
+            date,
+            this.masterKey
+        );
         let path = `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls`;
         let headers = {
             Authorization: _token,
@@ -232,19 +252,22 @@ class CosmosDbApiClient {
         };
         return await new Promise(function(resolve, reject) {
             // use GET here
-            request.get({
-                url: path,
-                headers: headers,
-                json: true
-            }, function(error, response) {
-                if (error) {
-                    reject(error);
-                } else if (response.statusCode === 200) {
-                    resolve(response);
-                } else {
-                    reject(response);
+            request.get(
+                {
+                    url: path,
+                    headers: headers,
+                    json: true
+                },
+                function(error, response) {
+                    if (error) {
+                        reject(error);
+                    } else if (response.statusCode === 200) {
+                        resolve(response);
+                    } else {
+                        reject(response);
+                    }
                 }
-            });
+            );
         });
     }
 
@@ -254,9 +277,14 @@ class CosmosDbApiClient {
      * @param {*} collectionName the name of collectioin to create
      */
     async createCollection(dbName, collectionName) {
-        let date = (new Date()).toUTCString();
-        let _token = getAuthorizationTokenUsingMasterKey('post',
-            'colls', `dbs/${dbName}`, date, this.masterKey);
+        let date = new Date().toUTCString();
+        let _token = getAuthorizationTokenUsingMasterKey(
+            'post',
+            'colls',
+            `dbs/${dbName}`,
+            date,
+            this.masterKey
+        );
         let path = `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls`;
         let headers = {
             Authorization: _token,
@@ -266,27 +294,36 @@ class CosmosDbApiClient {
         };
         return await new Promise(function(resolve, reject) {
             // use post here
-            request.post({
-                url: path,
-                headers: headers,
-                body: {
-                    id: collectionName
+            request.post(
+                {
+                    url: path,
+                    headers: headers,
+                    body: {
+                        id: collectionName
+                    },
+                    json: true
                 },
-                json: true
-            }, function(error, response) {
-                if (error) {
-                    reject(error);
-                } else if (response.statusCode === 201 || response.statusCode === 409) {
-                    resolve(response);
-                } else {
-                    reject(response);
+                function(error, response) {
+                    if (error) {
+                        reject(error);
+                    } else if (response.statusCode === 201 || response.statusCode === 409) {
+                        resolve(response);
+                    } else {
+                        reject(response);
+                    }
                 }
-            });
+            );
         });
     }
 
-    async simpleQueryDocument(dbName, collectionName, keyExp = null, filterExp = null,
-        partitioning = null, options = null) {
+    async simpleQueryDocument(
+        dbName,
+        collectionName,
+        keyExp = null,
+        filterExp = null,
+        partitioning = null,
+        options = null
+    ) {
         let queryObject = {
             query: `SELECT * FROM ${collectionName} c`,
             parameters: []
@@ -330,13 +367,21 @@ class CosmosDbApiClient {
             queryObject.query += ` ORDER BY c.${options.order.by} ${direction}`;
         }
         if (options && options.limit) {
-            queryObject.query = queryObject.query.replace('SELECT * FROM', 'SELECT TOP ' +
-            `${options.limit} * FROM`);
+            queryObject.query = queryObject.query.replace(
+                'SELECT * FROM',
+                'SELECT TOP ' + `${options.limit} * FROM`
+            );
         }
-        let date = (new Date()).toUTCString();
-        let _token = getAuthorizationTokenUsingMasterKey('post', 'docs',
-                `dbs/${dbName}/colls/${collectionName}`, date, this.masterKey);
-        let path = `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls/` +
+        let date = new Date().toUTCString();
+        let _token = getAuthorizationTokenUsingMasterKey(
+            'post',
+            'docs',
+            `dbs/${dbName}/colls/${collectionName}`,
+            date,
+            this.masterKey
+        );
+        let path =
+            `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls/` +
             `${collectionName}/docs`;
         let headers = {
             Authorization: _token,
@@ -346,7 +391,7 @@ class CosmosDbApiClient {
             'x-ms-max-item-count': options && options.itemCount ? options.itemCount : -1,
             'Content-Type': 'application/query+json'
         };
-            // see: https://docs.microsoft.com/en-us/azure/cosmos-db/partitioning-overview
+        // see: https://docs.microsoft.com/en-us/azure/cosmos-db/partitioning-overview
         if (partitioning && partitioning.crossPartition) {
             headers['x-ms-documentdb-query-enablecrosspartition'] = true;
             if (partitioning.partitionKey) {
@@ -354,25 +399,29 @@ class CosmosDbApiClient {
             }
         }
 
-        return await new Promise((resolve,reject) => {
-            request.post({
-                url: path,
-                headers: headers,
-                body: JSON.stringify(queryObject)
-            }, function(error, response) { // eslint-disable-line no-unused-vars
-                if (error) {
-                    reject(error);
-                } else if (response.statusCode === 200) {
-                    try {
-                        let res = JSON.parse(response.body);
-                        resolve(res.Documents);
-                    } catch (err) {
-                        reject(err);
+        return await new Promise((resolve, reject) => {
+            request.post(
+                {
+                    url: path,
+                    headers: headers,
+                    body: JSON.stringify(queryObject)
+                },
+                function(error, response) {
+                    // eslint-disable-line no-unused-vars
+                    if (error) {
+                        reject(error);
+                    } else if (response.statusCode === 200) {
+                        try {
+                            let res = JSON.parse(response.body);
+                            resolve(res.Documents);
+                        } catch (err) {
+                            reject(err);
+                        }
+                    } else {
+                        reject(response);
                     }
-                } else {
-                    reject(response);
                 }
-            });
+            );
         });
     }
     /**
@@ -383,7 +432,7 @@ class CosmosDbApiClient {
      */
     async queryDocument(resource) {
         return await new Promise((resolve, reject) => {
-            let date = (new Date()).toUTCString();
+            let date = new Date().toUTCString();
             let resourcePath = '',
                 resourceType = '';
             if (resource.dbName !== undefined) {
@@ -392,9 +441,11 @@ class CosmosDbApiClient {
             }
             if (resource.collectionName !== undefined) {
                 if (resource.dbName === undefined) {
-                // TODO: what should return by this reject?
-                    logger.warn('called azureApiCosmosDbQuery: invalid resource ' +
-                    `${JSON.stringify(resource)}`);
+                    // TODO: what should return by this reject?
+                    logger.warn(
+                        'called azureApiCosmosDbQuery: invalid resource ' +
+                            `${JSON.stringify(resource)}`
+                    );
                     reject({});
                     return;
                 }
@@ -404,8 +455,13 @@ class CosmosDbApiClient {
             resourceType = 'docs';
             // resourcePath += `/docs`;
 
-            let _token = getAuthorizationTokenUsingMasterKey('post',
-            resourceType, resourcePath, date, this.masterKey);
+            let _token = getAuthorizationTokenUsingMasterKey(
+                'post',
+                resourceType,
+                resourcePath,
+                date,
+                this.masterKey
+            );
             let path = `https://${this.dbAccount}.documents.azure.com/${resourcePath}/docs`;
             let headers = {
                 Authorization: _token,
@@ -427,46 +483,60 @@ class CosmosDbApiClient {
                     parameters: resource.queryObject.parameters || []
                 });
             } catch (error) {
-            // TODO: what should return by this reject?
-                logger.warn('called azureApiCosmosDbQuery: invalid queryObject -> ' +
-                `${JSON.stringify(resource.queryObject)}.`);
+                // TODO: what should return by this reject?
+                logger.warn(
+                    'called azureApiCosmosDbQuery: invalid queryObject -> ' +
+                        `${JSON.stringify(resource.queryObject)}.`
+                );
                 reject({});
             }
-            request.post({
-                url: path,
-                headers: headers,
-                body: body
-            }, function(error, response, _body) { // eslint-disable-line no-unused-vars
-                if (error) {
-                    logger.warn('called azureApiCosmosDbQuery > unknown error: ' +
-                    `${JSON.stringify(response)}`);
-                    reject(error);
-                } else if (response.statusCode === 200) {
-                    logger.info(`azureApiCosmosDbQuery: ${resourcePath} retrieved.`);
-                    try {
-                        let res = JSON.parse(response.body);
-                        logger.info('called azureApiCosmosDbQuery.');
-                        resolve(res.Documents);
-                    } catch (err) {
-                        logger.warn('called azureApiCosmosDbQuery: ' +
-                        'Documents object parsed failed.');
-                        // TODO: what should return if failed to parse the documents?
-                        reject({});
+            request.post(
+                {
+                    url: path,
+                    headers: headers,
+                    body: body
+                },
+                function(error, response) {
+                    if (error) {
+                        logger.warn(
+                            'called azureApiCosmosDbQuery > unknown error: ' +
+                                `${JSON.stringify(response)}`
+                        );
+                        reject(error);
+                    } else if (response.statusCode === 200) {
+                        logger.info(`azureApiCosmosDbQuery: ${resourcePath} retrieved.`);
+                        try {
+                            let res = JSON.parse(response.body);
+                            logger.info('called azureApiCosmosDbQuery.');
+                            resolve(res.Documents);
+                        } catch (err) {
+                            logger.warn(
+                                'called azureApiCosmosDbQuery: ' + 'Documents object parsed failed.'
+                            );
+                            // TODO: what should return if failed to parse the documents?
+                            reject({});
+                        }
+                    } else if (response.statusCode === 304) {
+                        logger.warn(
+                            `called azureApiCosmosDbQuery: ${resourcePath} not modified. ` +
+                                'return empty response body.'
+                        );
+                        reject(response);
+                    } else if (response.statusCode === 404) {
+                        logger.warn(
+                            'called azureApiCosmosDbQuery: not found, ' +
+                                `${resourcePath} was deleted.`
+                        );
+                        reject(response);
+                    } else {
+                        logger.warn(
+                            'called azureApiCosmosDbQuery > other error: ' +
+                                `${JSON.stringify(response)}`
+                        );
+                        reject(response);
                     }
-                } else if (response.statusCode === 304) {
-                    logger.warn(`called azureApiCosmosDbQuery: ${resourcePath} not modified. ` +
-                    'return empty response body.');
-                    reject(response);
-                } else if (response.statusCode === 404) {
-                    logger.warn('called azureApiCosmosDbQuery: not found, ' +
-                    `${resourcePath} was deleted.`);
-                    reject(response);
-                } else {
-                    logger.warn('called azureApiCosmosDbQuery > other error: ' +
-                    `${JSON.stringify(response)}`);
-                    reject(response);
                 }
-            });
+            );
         });
     }
 
@@ -478,11 +548,17 @@ class CosmosDbApiClient {
      * @param {boolean} replaced whether replace the document with the same key
      */
     async createDocument(dbName, collectionName, document, replaced = false) {
-        let date = (new Date()).toUTCString();
-        let _token = getAuthorizationTokenUsingMasterKey('post',
-            'docs', `dbs/${dbName}/colls/${collectionName}`, date, this.masterKey);
-        let path = `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls/` +
-        `${collectionName}/docs`; // eslint-disable-line max-len
+        let date = new Date().toUTCString();
+        let _token = getAuthorizationTokenUsingMasterKey(
+            'post',
+            'docs',
+            `dbs/${dbName}/colls/${collectionName}`,
+            date,
+            this.masterKey
+        );
+        let path =
+            `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls/` +
+            `${collectionName}/docs`; // eslint-disable-line max-len
         let headers = {
             Authorization: _token,
             'x-ms-version': '2017-02-22',
@@ -493,23 +569,26 @@ class CosmosDbApiClient {
         }
         return await new Promise(function(resolve, reject) {
             // use post here
-            request.post({
-                url: path,
-                headers: headers,
-                body: document,
-                json: true
-            }, function(error, response, body) {
-                if (error) {
-                    reject(error);
-                } else if (response.statusCode === 200) {
-                    resolve(body);
-                } else if (response.statusCode === 201) {
-                    resolve(body);
-                } else {
-                    // 409: id conflict will be rejected too.
-                    reject(response);
+            request.post(
+                {
+                    url: path,
+                    headers: headers,
+                    body: document,
+                    json: true
+                },
+                function(error, response, body) {
+                    if (error) {
+                        reject(error);
+                    } else if (response.statusCode === 200) {
+                        resolve(body);
+                    } else if (response.statusCode === 201) {
+                        resolve(body);
+                    } else {
+                        // 409: id conflict will be rejected too.
+                        reject(response);
+                    }
                 }
-            });
+            );
         });
     }
 
@@ -520,12 +599,17 @@ class CosmosDbApiClient {
      * @param {Object} document the structure of the document. an document.id is required
      */
     async replaceDocument(dbName, collectionName, document) {
-        let date = (new Date()).toUTCString();
-        let _token = getAuthorizationTokenUsingMasterKey('put',
-            'docs', `dbs/${dbName}/colls/${collectionName}/docs/${document.id}`, date,
-            this.masterKey);
-        let path = `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls/` +
-        `${collectionName}/docs/${document.id}`;
+        let date = new Date().toUTCString();
+        let _token = getAuthorizationTokenUsingMasterKey(
+            'put',
+            'docs',
+            `dbs/${dbName}/colls/${collectionName}/docs/${document.id}`,
+            date,
+            this.masterKey
+        );
+        let path =
+            `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls/` +
+            `${collectionName}/docs/${document.id}`;
         let headers = {
             Authorization: _token,
             'x-ms-version': '2017-02-22',
@@ -534,22 +618,25 @@ class CosmosDbApiClient {
 
         return await new Promise(function(resolve, reject) {
             // use post here
-            request.put({
-                url: path,
-                headers: headers,
-                body: document,
-                json: true
-            }, function(error, response, body) {
-                if (error) {
-                    reject(error);
-                } else if (response.statusCode === 200) {
-                    resolve(body);
-                } else {
-                    // 409: id conflict will be rejected too.
-                    // 413: Entity Too Large will be rejected too.
-                    reject(response);
+            request.put(
+                {
+                    url: path,
+                    headers: headers,
+                    body: document,
+                    json: true
+                },
+                function(error, response, body) {
+                    if (error) {
+                        reject(error);
+                    } else if (response.statusCode === 200) {
+                        resolve(body);
+                    } else {
+                        // 409: id conflict will be rejected too.
+                        // 413: Entity Too Large will be rejected too.
+                        reject(response);
+                    }
                 }
-            });
+            );
         });
     }
 
@@ -560,12 +647,17 @@ class CosmosDbApiClient {
      * @param {String} documentId the document id. is required
      */
     async deleteDocument(dbName, collectionName, documentId) {
-        let date = (new Date()).toUTCString();
-        let _token = getAuthorizationTokenUsingMasterKey('delete',
-            'docs', `dbs/${dbName}/colls/${collectionName}/docs/${documentId}`, date,
-            this.masterKey);
-        let path = `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls/` +
-        `${collectionName}/docs/${documentId}`;
+        let date = new Date().toUTCString();
+        let _token = getAuthorizationTokenUsingMasterKey(
+            'delete',
+            'docs',
+            `dbs/${dbName}/colls/${collectionName}/docs/${documentId}`,
+            date,
+            this.masterKey
+        );
+        let path =
+            `https://${this.dbAccount}.documents.azure.com/dbs/${dbName}/colls/` +
+            `${collectionName}/docs/${documentId}`;
         let headers = {
             Authorization: _token,
             'x-ms-version': '2017-02-22',
@@ -573,20 +665,23 @@ class CosmosDbApiClient {
         };
         return await new Promise(function(resolve, reject) {
             // use delete here
-            request.delete({
-                url: path,
-                headers: headers,
-                json: true
-            }, function(error, response, body) {
-                if (error) {
-                    reject(error);
-                } else if (response.statusCode === 204) {
-                    resolve(body);
-                } else {
-                    // 404: The document is not found.
-                    reject(response);
+            request.delete(
+                {
+                    url: path,
+                    headers: headers,
+                    json: true
+                },
+                function(error, response, body) {
+                    if (error) {
+                        reject(error);
+                    } else if (response.statusCode === 204) {
+                        resolve(body);
+                    } else {
+                        // 404: The document is not found.
+                        reject(response);
+                    }
                 }
-            });
+            );
         });
     }
 }
@@ -601,7 +696,9 @@ class ComputeApiClient {
     refVirtualMachineScaleSet(scaleSetName) {
         if (!this.refVmssApiClient[scaleSetName]) {
             this.refVmssApiClient[scaleSetName] = new VirtualMachineScaleSetApiClient(
-                this.subscriptionId, this.resourceGroupName, scaleSetName
+                this.subscriptionId,
+                this.resourceGroupName,
+                scaleSetName
             );
         }
         return this.refVmssApiClient[scaleSetName];
@@ -622,12 +719,16 @@ class StorageApiClient {
      * @returns {blobService} azure blob service
      */
     refBlobService() {
-        if (!process.env.AZURE_STORAGE_ACCOUNT ||
-            process.env.AZURE_STORAGE_ACCOUNT !== this.storageAccount) {
+        if (
+            !process.env.AZURE_STORAGE_ACCOUNT ||
+            process.env.AZURE_STORAGE_ACCOUNT !== this.storageAccount
+        ) {
             process.env.AZURE_STORAGE_ACCOUNT = this.storageAccount;
         }
-        if (!process.env.AZURE_STORAGE_ACCESS_KEY ||
-            process.env.AZURE_STORAGE_ACCESS_KEY !== this.accessKey) {
+        if (
+            !process.env.AZURE_STORAGE_ACCESS_KEY ||
+            process.env.AZURE_STORAGE_ACCESS_KEY !== this.accessKey
+        ) {
             process.env.AZURE_STORAGE_ACCESS_KEY = this.accessKey;
         }
         if (!this.blobService) {
@@ -646,8 +747,7 @@ class StorageApiClient {
  * @param {String} apiVersion a proper api version string
  */
 async function AzureArmApiCall(method, resourceId, body, apiVersion) {
-    const url =
-        `https://management.azure.com${resourceId}?api-version=${apiVersion}`;
+    const url = `https://management.azure.com${resourceId}?api-version=${apiVersion}`;
     return await AzureArmRequest(method, url, body);
 }
 
@@ -692,25 +792,33 @@ function AzureArmRequest(method, url, body = null) {
 function AzureArmGet(url) {
     return new Promise((resolve, reject) => {
         logger.info(`calling AzureArmGet url: ${url}`);
-        request.get({
-            url: url,
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }, function(error, response, body) {
-            // TODO: handle error.
-            if (error) {
-                logger.warn(`called AzureArmGet but returned unknown error ${JSON.stringify(error)}`); // eslint-disable-line max-len
-                reject(error);
-            } else {
-                if (response.statusCode === 200) {
-                    resolve(body);
+        request.get(
+            {
+                url: url,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            },
+            function(error, response, body) {
+                // TODO: handle error.
+                if (error) {
+                    logger.warn(
+                        `called AzureArmGet but returned unknown error ${JSON.stringify(error)}`
+                    );
+                    reject(error);
                 } else {
-                    logger.warn(`called AzureArmGet but returned error (code: ${response.statusCode}) ${response.body}`); // eslint-disable-line max-len
-                    reject(response);
+                    if (response.statusCode === 200) {
+                        resolve(body);
+                    } else {
+                        logger.warn(
+                            'called AzureArmGet but returned error ' +
+                                `(code: ${response.statusCode}) ${response.body}`
+                        );
+                        reject(response);
+                    }
                 }
             }
-        });
+        );
     });
 }
 
@@ -721,8 +829,7 @@ function AzureArmGet(url) {
  * @param {String} apiVersion a proper api version string
  */
 async function getResource(resourceId, apiVersion) {
-    const url =
-        `https://management.azure.com${resourceId}?api-version=${apiVersion}`;
+    const url = `https://management.azure.com${resourceId}?api-version=${apiVersion}`;
     try {
         let response = await AzureArmGet(url);
         return JSON.parse(response);
@@ -749,7 +856,10 @@ async function getResource(resourceId, apiVersion) {
 function authWithServicePrincipal(app_id, app_secret, tenant_id) {
     return new Promise(function(resolve, reject) {
         logger.info('calling authWithServicePrincipal.');
-        MsRest.loginWithServicePrincipalSecret(app_id, app_secret, tenant_id,
+        MsRest.loginWithServicePrincipalSecret(
+            app_id,
+            app_secret,
+            tenant_id,
             (error, _credentials) => {
                 if (error) {
                     logger.error(`authWithServicePrincipal > error: ${error.message}`);
@@ -760,22 +870,25 @@ function authWithServicePrincipal(app_id, app_secret, tenant_id) {
                 token = credentials.accessToken;
                 logger.info('called authWithServicePrincipal.');
                 resolve(true);
-            });
+            }
+        );
     });
 }
-
 
 function getAuthorizationTokenUsingMasterKey(verb, resourceType, resourceId, date, _masterKey) {
     var key = new Buffer(_masterKey, 'base64');
 
-    var text = `${(verb || '').toLowerCase()}\n${
-        (resourceType || '').toLowerCase()}\n${
-        resourceId || ''}\n${
-        date.toLowerCase()}\n` +
-        '' + '\n';
+    var text =
+        `${(verb || '').toLowerCase()}\n${(resourceType || '').toLowerCase()}\n${resourceId ||
+            ''}\n${date.toLowerCase()}\n` +
+        '' +
+        '\n';
 
     var body = new Buffer(text, 'utf8');
-    var signature = crypto.createHmac('sha256', key).update(body).digest('base64');
+    var signature = crypto
+        .createHmac('sha256', key)
+        .update(body)
+        .digest('base64');
 
     var MasterToken = 'master';
 

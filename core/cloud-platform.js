@@ -186,8 +186,13 @@ module.exports = class CloudPlatform {
      * @param {bool} forceOutOfSync whether force to update this record as 'out-of-sync'
      * @returns {bool} resul: true or false
      */
-    async updateInstanceHealthCheck(healthCheckObject, heartBeatInterval, masterIp, checkPointTime,
-        forceOutOfSync = false) {
+    async updateInstanceHealthCheck(
+        healthCheckObject,
+        heartBeatInterval,
+        masterIp,
+        checkPointTime,
+        forceOutOfSync = false
+    ) {
         await this.throwNotImplementedException();
     }
 
@@ -313,7 +318,7 @@ module.exports = class CloudPlatform {
      * @returns {Boolean} A boolean value for whether the update is success or not.
      */
     async updateTgwRouteTablePropagation(attachmentId, routeTableId) {
-        return await this.throwNotImplementedException() || attachmentId && routeTableId;
+        return (await this.throwNotImplementedException()) || (attachmentId && routeTableId);
     }
 
     /**
@@ -324,7 +329,7 @@ module.exports = class CloudPlatform {
      * @returns {Boolean} A boolean value for whether the update is success or not.
      */
     async updateTgwRouteTableAssociation(attachmentId, routeTableId) {
-        return await this.throwNotImplementedException() || attachmentId && routeTableId;
+        return (await this.throwNotImplementedException()) || (attachmentId && routeTableId);
     }
 
     /**
@@ -339,7 +344,7 @@ module.exports = class CloudPlatform {
      * @param {String} masterInstanceId master instance Id
      */
     async updateHAAPRoleTag(masterInstanceId) {
-        return await this.throwNotImplementedException() || true;
+        return (await this.throwNotImplementedException()) || true;
     }
     /* eslint-enable no-unused-vars */
 };

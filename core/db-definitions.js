@@ -330,7 +330,8 @@ const DB = {
             {
                 AttributeName: 'id',
                 AttributeType: 'S'
-            },{
+            },
+            {
                 AttributeName: 'timestamp',
                 AttributeType: 'N'
             }
@@ -339,7 +340,8 @@ const DB = {
             {
                 AttributeName: 'id',
                 KeyType: 'HASH'
-            },{
+            },
+            {
                 AttributeName: 'timestamp',
                 KeyType: 'RANGE'
             }
@@ -383,13 +385,16 @@ const DB = {
             }
         ]
     }
-
 };
 
 exports.getTables = (custom_id, unique_id) => {
     let tables = {},
-        prefix = () => { return custom_id ? `${custom_id}-` : '' },
-        suffix = () => { return unique_id ? `-${unique_id}` : '' };
+        prefix = () => {
+            return custom_id ? `${custom_id}-` : '';
+        },
+        suffix = () => {
+            return unique_id ? `-${unique_id}` : '';
+        };
     Object.keys(DB).forEach(itemName => {
         let table = {};
         table.AttributeDefinitions = DB[itemName].AttributeDefinitions;
@@ -403,7 +408,7 @@ exports.getTables = (custom_id, unique_id) => {
 };
 
 exports.getTableSchema = (tables, tableName) => {
-    if (!tables || !tables.hasOwnProperty(tableName)) {
+    if (!tables || !Object.prototype.hasOwnProperty.call(tables, tableName)) {
         return null;
     }
     let schema = {};

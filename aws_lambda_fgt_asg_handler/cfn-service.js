@@ -33,7 +33,8 @@ exports.handler = async (event, context) => {
         let serviceType = event.ResourceProperties.ServiceType;
         logger.info(`RequestType: ${event.RequestType}, serviceType: ${serviceType}`);
         if (event.RequestType === 'Create') {
-            let subnetPairs = [], params = Object.assign({}, event.ResourceProperties);
+            let subnetPairs = [],
+                params = Object.assign({}, event.ResourceProperties);
             switch (serviceType) {
                 case 'initiateAutoscale':
                     // initiate
@@ -48,8 +49,12 @@ exports.handler = async (event, context) => {
                         }
                     ];
                     await autoscaleHandler.init();
-                    await autoscaleHandler.initiate(params.DesiredCapacity, params.MinSize,
-                        params.MaxSize, subnetPairs);
+                    await autoscaleHandler.initiate(
+                        params.DesiredCapacity,
+                        params.MinSize,
+                        params.MaxSize,
+                        subnetPairs
+                    );
                     await autoscaleHandler.restart();
                     break;
                 case 'saveSettings':
@@ -74,7 +79,10 @@ exports.handler = async (event, context) => {
                     await autoscaleHandler.init();
                     await autoscaleHandler.updateCapacity(
                         autoscaleHandler.getSettings()['payg-auto-scaling-group-name'],
-                        params.desiredCapacity, params.minSize, params.maxSize);
+                        params.desiredCapacity,
+                        params.minSize,
+                        params.maxSize
+                    );
                     break;
                 case 'stopAutoscale':
                     // do not need to respond to the stop service type while resource is creating
@@ -92,28 +100,48 @@ exports.handler = async (event, context) => {
                         let tasks = [];
                         // check if all additional nics are detached and removed
                         if (autoscaleHandler.getSettings()['enable-second-nic'] === 'true') {
-                            tasks.push(autoscaleHandler.getPlatform().listNicAttachmentRecord()
-                                .then(nicAttachmentCheck => {
-                                    return {checkName: 'nicAttachmentCheck',
-                                        result: !nicAttachmentCheck ||
+                            tasks.push(
+                                autoscaleHandler
+                                    .getPlatform()
+                                    .listNicAttachmentRecord()
+                                    .then(nicAttachmentCheck => {
+                                        return {
+                                            checkName: 'nicAttachmentCheck',
+                                            result:
+                                                !nicAttachmentCheck ||
                                                 nicAttachmentCheck.length === 0
-                                    };
-                                }));
+                                        };
+                                    })
+                            );
                         }
                         if (autoscaleHandler.getSettings()['enable-hybrid-licensing'] === 'true') {
-                            tasks.push(autoscaleHandler.checkAutoScalingGroupState(
-                                autoscaleHandler.getSettings()['byol-auto-scaling-group-name']
-                            ).then(byolGroupCheck => {
-                                return {checkName: 'byolGroupCheck',
-                                    result: !byolGroupCheck || byolGroupCheck === 'stopped'};
-                            }));
+                            tasks.push(
+                                autoscaleHandler
+                                    .checkAutoScalingGroupState(
+                                        autoscaleHandler.getSettings()[
+                                            'byol-auto-scaling-group-name'
+                                        ]
+                                    )
+                                    .then(byolGroupCheck => {
+                                        return {
+                                            checkName: 'byolGroupCheck',
+                                            result: !byolGroupCheck || byolGroupCheck === 'stopped'
+                                        };
+                                    })
+                            );
                         }
-                        tasks.push(autoscaleHandler.checkAutoScalingGroupState(
-                            autoscaleHandler.getSettings()['payg-auto-scaling-group-name']
-                        ).then(paygGroupCheck => {
-                            return {checkName: 'paygGroupCheck',
-                                result: !paygGroupCheck || paygGroupCheck === 'stopped'};
-                        }));
+                        tasks.push(
+                            autoscaleHandler
+                                .checkAutoScalingGroupState(
+                                    autoscaleHandler.getSettings()['payg-auto-scaling-group-name']
+                                )
+                                .then(paygGroupCheck => {
+                                    return {
+                                        checkName: 'paygGroupCheck',
+                                        result: !paygGroupCheck || paygGroupCheck === 'stopped'
+                                    };
+                                })
+                        );
                         return Promise.all(tasks);
                     },
                     validator = resultArray => {
@@ -127,18 +155,26 @@ exports.handler = async (event, context) => {
                         if (Date.now() < scriptExecutionExpireTime - 5000) {
                             return false;
                         }
-                        throw new Error('cannot wait for auto scaling group status because ' +
-                    'script execution is about to expire');
+                        throw new Error(
+                            'cannot wait for auto scaling group status because ' +
+                                'script execution is about to expire'
+                        );
                     };
                 await autoscaleHandler.init();
                 // this may take a significantly long time to wait for its fully stop
                 await autoscaleHandler.stop();
                 try {
                     await autoscaleHandler.AutoScaleCore.Functions.waitFor(
-                        promiseEmitter, validator, 5000, counter);
+                        promiseEmitter,
+                        validator,
+                        5000,
+                        counter
+                    );
                 } catch (error) {
-                    logger.warn('error occurs while waiting for fully stop the auto scaling group',
-                    error);
+                    logger.warn(
+                        'error occurs while waiting for fully stop the auto scaling group',
+                        error
+                    );
                     throw error;
                 }
                 // clean up

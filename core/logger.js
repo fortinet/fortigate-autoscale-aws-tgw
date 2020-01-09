@@ -73,7 +73,7 @@ module.exports = class Logger {
     enQueue(level, args) {
         let d = new Date();
         d.setUTCHours(d.getTimezoneOffset() / 60 + this._timeZoneOffset);
-        let item = {level: level, timestamp: d, arguments: []};
+        let item = { level: level, timestamp: d, arguments: [] };
         item.arguments = Array.prototype.slice.call(args).map(arg => {
             return arg && arg.toString ? arg.toString() : arg;
         });
