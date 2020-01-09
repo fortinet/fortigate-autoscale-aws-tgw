@@ -1,7 +1,7 @@
 {
-  "name": "fortigate-autoscale",
-  "version": "1.1.1",
-  "description": "FortiGate Autoscale Project",
+  "name": "fortigate-autoscale-aws-tgw",
+  "version": "1.1.2",
+  "description": "FortiGate Autoscale Project with AWS Transit Gateway Integration",
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -37,7 +37,7 @@
     "eslint-plugin-json": "^1.2.1",
     "eslint-plugin-mocha": "^5.2.0",
     "mocha": "^5.2.0",
-    "nyc": "^13.0.1",
+    "nyc": "^15.0.0",
     "rimraf": "^2.6.2"
   }
 }
