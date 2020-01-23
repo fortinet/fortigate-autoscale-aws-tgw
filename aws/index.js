@@ -1834,7 +1834,7 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
         };
         try {
             const instances = await ec2.describeInstances(params).promise();
-            let masterInstances = [];
+            let taggedInstances = [];
             instances.Reservations.forEach(resv => {
                 const resvInstances = resv.Instances.filter(resvInstance => {
                     // return true if it contains a tag key: AutoscaleRole and value: master
@@ -1844,17 +1844,21 @@ class AwsPlatform extends AutoScaleCore.CloudPlatform {
                         ).length > 0
                     );
                 });
-                masterInstances = [...masterInstances, ...resvInstances];
+                taggedInstances = [...taggedInstances, ...resvInstances];
             });
-            logger.log(JSON.stringify(masterInstances));
-            // remove the master tag from existing instances
-            let deleteParams = { Resources: [], Tags: [tagMaster] };
-            masterInstances.forEach(masterInstance => {
-                deleteParams.Resources.push(masterInstance.InstanceId);
-            });
-            await ec2.deleteTags(deleteParams).promise();
+
+            // remove the master tag from existing instances only if the tag exists.
+            if (taggedInstances.length > 0) {
+                let deleteParams = { Resources: [], Tags: [tagMaster] };
+                taggedInstances.forEach(masterInstance => {
+                    deleteParams.Resources.push(masterInstance.InstanceId);
+                });
+                await ec2.deleteTags(deleteParams).promise();
+                logger.info(`AutoscaleRole is removed from ${taggedInstances.length} instance(s).`);
+            }
             // add the master tag to the one with id === masterInstanceId
             await ec2.createTags({ Resources: [masterInstanceId], Tags: [tagMaster] }).promise();
+            logger.info(`AutoscaleRole is added to instance (id: ${masterInstanceId}).`);
             logger.info('called updateHAAPRoleTag');
             return true;
         } catch (error) {
