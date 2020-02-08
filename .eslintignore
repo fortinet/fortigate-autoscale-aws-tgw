@@ -3,3 +3,4 @@
 **/local
 **/nyc_output
 **/local.*
+aws*/templates/copy-lambda.template
