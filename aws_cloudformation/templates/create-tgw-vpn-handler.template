@@ -38,7 +38,8 @@
     },
     "Conditions": {
         "GovCloudCondition": {
-            "Fn::Equals": [{
+            "Fn::Equals": [
+                {
                     "Ref": "AWS::Region"
                 },
                 "us-gov-west-1"
@@ -63,11 +64,7 @@
                         "https://${S3BucketName}.${S3Region}.amazonaws.com/${S3KeyPrefix}templates/copy-objects.template",
                         {
                             "S3Region": {
-                                "Fn::If": [
-                                    "GovCloudCondition",
-                                    "s3-us-gov-west-1",
-                                    "s3"
-                                ]
+                                "Fn::If": ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
                             },
                             "S3BucketName": {
                                 "Ref": "S3BucketName"
@@ -88,9 +85,11 @@
                 "FunctionName": {
                     "Fn::Join": [
                         "-",
-                        [{
+                        [
+                            {
                                 "Ref": "CustomIdentifier"
-                            }, {
+                            },
+                            {
                                 "Ref": "UniqueId"
                             },
                             "fortigate-transit-gateway-vpn-handler"
@@ -99,29 +98,20 @@
                 },
                 "Runtime": "nodejs12.x",
                 "Role": {
-                    "Fn::GetAtt": [
-                        "IamRoleTransitGatewayVpnHandler",
-                        "Arn"
-                    ]
+                    "Fn::GetAtt": ["IamRoleTransitGatewayVpnHandler", "Arn"]
                 },
                 "Handler": "index.handler",
                 "Timeout": 600,
                 "Code": {
                     "S3Bucket": {
-                        "Fn::GetAtt": [
-                            "StackCopyLambdaSource",
-                            "Outputs.DestinationBucket"
-                        ]
+                        "Fn::GetAtt": ["StackCopyLambdaSource", "Outputs.DestinationBucket"]
                     },
                     "S3Key": {
                         "Fn::Sub": [
                             "${KeyPrefix}functions/packages/tgw-vpn-handler.zip",
                             {
                                 "KeyPrefix": {
-                                    "Fn::GetAtt": [
-                                        "StackCopyLambdaSource",
-                                        "Outputs.KeyPrefix"
-                                    ]
+                                    "Fn::GetAtt": ["StackCopyLambdaSource", "Outputs.KeyPrefix"]
                                 }
                             }
                         ]
@@ -134,16 +124,16 @@
                         }
                     }
                 },
-                "Tags": [{
-                    "Key": "ResourceGroup",
-                    "Value": {
-                        "Ref": "ResourceTagPrefix"
+                "Tags": [
+                    {
+                        "Key": "ResourceGroup",
+                        "Value": {
+                            "Ref": "ResourceTagPrefix"
+                        }
                     }
-                }]
+                ]
             },
-            "DependsOn": [
-                "StackCopyLambdaSource"
-            ]
+            "DependsOn": ["StackCopyLambdaSource"]
         },
         "IamRoleTransitGatewayVpnHandler": {
             "Type": "AWS::IAM::Role",
@@ -154,236 +144,273 @@
                 ],
                 "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
-                    "Statement": [{
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": [
-                                "lambda.amazonaws.com"
-                            ]
-                        },
-                        "Action": [
-                            "sts:AssumeRole"
-                        ]
-                    }]
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": ["lambda.amazonaws.com"]
+                            },
+                            "Action": ["sts:AssumeRole"]
+                        }
+                    ]
                 },
                 "Path": "/",
-                "Policies": [{
-                    "PolicyName": "tgw-vpn-handler-policy",
-                    "PolicyDocument": {
-                        "Version": "2012-10-17",
-                        "Statement": [{
-                                "Effect": "Allow",
-                                "Action": [
-                                    "dynamodb:CreateTable",
-                                    "dynamodb:DescribeTable",
-                                    "dynamodb:Scan",
-                                    "dynamodb:Query",
-                                    "dynamodb:DeleteItem",
-                                    "dynamodb:GetItem",
-                                    "dynamodb:PutItem",
-                                    "dynamodb:UpdateItem"
-                                ],
-                                "Resource": {
-                                    "Fn::Sub": [
-                                        "arn:aws:dynamodb:${AWS_REGION}:${AWS_ACCOUNT_ID}:table/${RESOURCE_PREFIX}*",
-                                        {
-                                            "AWS_REGION": {
-                                                "Ref": "AWS::Region"
-                                            },
-                                            "AWS_ACCOUNT_ID": {
-                                                "Ref": "AWS::AccountId"
-                                            },
-                                            "RESOURCE_PREFIX": {
-                                                "Ref": "ResourceTagPrefix"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "Effect": "Allow",
-                                "Action": [
-                                    "autoscaling:CompleteLifecycleAction",
-                                    "autoscaling:SetDesiredCapacity",
-                                    "autoscaling:SetInstanceProtection",
-                                    "autoscaling:ExitStandby",
-                                    "autoscaling:BatchPutScheduledUpdateGroupAction",
-                                    "autoscaling:EnterStandby",
-                                    "autoscaling:PutScheduledUpdateGroupAction",
-                                    "autoscaling:UpdateAutoScalingGroup",
-                                    "autoscaling:DeleteNotificationConfiguration",
-                                    "autoscaling:SetInstanceHealth",
-                                    "autoscaling:TerminateInstanceInAutoScalingGroup",
-                                    "autoscaling:AttachLoadBalancers",
-                                    "autoscaling:DetachLoadBalancers",
-                                    "autoscaling:BatchDeleteScheduledAction",
-                                    "autoscaling:ResumeProcesses",
-                                    "autoscaling:SetDesiredCapacity",
-                                    "autoscaling:PutLifecycleHook",
-                                    "autoscaling:DetachLoadBalancerTargetGroups",
-                                    "autoscaling:SuspendProcesses",
-                                    "autoscaling:AttachLoadBalancerTargetGroups",
-                                    "autoscaling:AttachInstances",
-                                    "autoscaling:CompleteLifecycleAction",
-                                    "autoscaling:CreateOrUpdateTags",
-                                    "autoscaling:SetInstanceProtection",
-                                    "autoscaling:DeleteAutoScalingGroup",
-                                    "autoscaling:DeleteLifecycleHook",
-                                    "autoscaling:CreateAutoScalingGroup",
-                                    "autoscaling:DeleteScheduledAction",
-                                    "autoscaling:DetachInstances",
-                                    "autoscaling:RecordLifecycleActionHeartbeat"
-                                ],
-                                "Resource": {
-                                    "Fn::Sub": [
-                                        "arn:aws:autoscaling:${AWS_REGION}:${AWS_ACCOUNT_ID}:autoScalingGroup:*:autoScalingGroupName/${RESOURCE_PREFIX}*",
-                                        {
-                                            "AWS_REGION": {
-                                                "Ref": "AWS::Region"
-                                            },
-                                            "AWS_ACCOUNT_ID": {
-                                                "Ref": "AWS::AccountId"
-                                            },
-                                            "RESOURCE_PREFIX": {
-                                                "Ref": "ResourceTagPrefix"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "Effect": "Allow",
-                                "Action": [
-                                    "autoscaling:DescribeAutoScalingNotificationTypes",
-                                    "autoscaling:DescribeAutoScalingInstances",
-                                    "ec2:DescribeInstances",
-                                    "autoscaling:DescribeScalingProcessTypes",
-                                    "autoscaling:DescribeTerminationPolicyTypes",
-                                    "dynamodb:ListTables",
-                                    "autoscaling:DescribePolicies",
-                                    "ec2:DescribeInstanceAttribute",
-                                    "autoscaling:DescribeLaunchConfigurations",
-                                    "autoscaling:DescribeAdjustmentTypes",
-                                    "ec2:DescribeNetworkInterfaces",
-                                    "autoscaling:DescribeScalingActivities",
-                                    "autoscaling:DescribeAccountLimits",
-                                    "autoscaling:DescribeAutoScalingGroups",
-                                    "autoscaling:DescribeScheduledActions",
-                                    "autoscaling:DescribeLoadBalancerTargetGroups",
-                                    "autoscaling:DescribeNotificationConfigurations",
-                                    "autoscaling:DescribeLifecycleHookTypes",
-                                    "ec2:DetachNetworkInterface",
-                                    "autoscaling:DescribeTags",
-                                    "ec2:DeleteNetworkInterface",
-                                    "autoscaling:DescribeMetricCollectionTypes",
-                                    "autoscaling:DescribeLoadBalancers",
-                                    "autoscaling:DescribeLifecycleHooks",
-                                    "ec2:CreateNetworkInterface",
-                                    "ec2:ModifyNetworkInterfaceAttribute",
-                                    "ec2:ModifyInstanceAttribute",
-                                    "ec2:DescribeVpcs",
-                                    "ec2:AttachNetworkInterface",
-                                    "ec2:DescribeNetworkInterfaces",
-                                    "ec2:CreateTags",
-                                    "ec2:DeleteTags",
-                                    "ec2:DescribeVpcs",
-                                    "ec2:DescribeSubnets"
-                                ],
-                                "Resource": "*"
-                            },
-                            {
-                                "Effect": "Allow",
-                                "Action": [
-                                    "apigateway:GET"
-                                ],
-                                "Resource": {
-                                    "Fn::Sub": [
-                                        "arn:aws:apigateway:${AWS_REGION}::*",
-                                        {
-                                            "AWS_REGION": {
-                                                "Ref": "AWS::Region"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "Effect": "Allow",
-                                "Action": "s3:GetObject",
-                                "Resource": {
-                                    "Fn::Sub": [
-                                        "arn:aws:s3:::${bucketname}/${keyprefix}assets/configset/*",
-                                        {
-                                            "bucketname": {
-                                                "Ref": "S3BucketName"
-                                            },
-                                            "keyprefix": {
-                                                "Ref": "S3KeyPrefix"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "Effect": "Allow",
-                                "Action": [
-                                    "ec2:DisassociateTransitGatewayRouteTable",
-                                    "ec2:ModifyTransitGatewayVpcAttachment",
-                                    "ec2:DisableTransitGatewayRouteTablePropagation",
-                                    "ec2:CreateTransitGatewayRouteTable",
-                                    "ec2:AcceptTransitGatewayVpcAttachment",
-                                    "ec2:ReplaceTransitGatewayRoute",
-                                    "ec2:DeleteTransitGatewayRouteTable",
-                                    "ec2:CreateTransitGatewayRoute",
-                                    "ec2:DeleteTransitGatewayRoute",
-                                    "ec2:CreateTransitGatewayVpcAttachment",
-                                    "ec2:DeleteTransitGatewayVpcAttachment",
-                                    "ec2:AssociateTransitGatewayRouteTable",
-                                    "ec2:RejectTransitGatewayVpcAttachment",
-                                    "ec2:EnableTransitGatewayRouteTablePropagation"
-                                ],
-                                "Resource": [{
+                "Policies": [
+                    {
+                        "PolicyName": "tgw-vpn-handler-policy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "dynamodb:CreateTable",
+                                        "dynamodb:DescribeTable",
+                                        "dynamodb:Scan",
+                                        "dynamodb:Query",
+                                        "dynamodb:DeleteItem",
+                                        "dynamodb:GetItem",
+                                        "dynamodb:PutItem",
+                                        "dynamodb:UpdateItem"
+                                    ],
+                                    "Resource": {
                                         "Fn::Sub": [
-                                            "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway-route-table/*",
+                                            "arn:aws:dynamodb:${AWS_REGION}:${AWS_ACCOUNT_ID}:table/${RESOURCE_PREFIX}*",
                                             {
                                                 "AWS_REGION": {
                                                     "Ref": "AWS::Region"
                                                 },
                                                 "AWS_ACCOUNT_ID": {
                                                     "Ref": "AWS::AccountId"
+                                                },
+                                                "RESOURCE_PREFIX": {
+                                                    "Ref": "ResourceTagPrefix"
                                                 }
                                             }
                                         ]
-                                    },
-                                    {
+                                    }
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "autoscaling:CompleteLifecycleAction",
+                                        "autoscaling:SetDesiredCapacity",
+                                        "autoscaling:SetInstanceProtection",
+                                        "autoscaling:ExitStandby",
+                                        "autoscaling:BatchPutScheduledUpdateGroupAction",
+                                        "autoscaling:EnterStandby",
+                                        "autoscaling:PutScheduledUpdateGroupAction",
+                                        "autoscaling:UpdateAutoScalingGroup",
+                                        "autoscaling:DeleteNotificationConfiguration",
+                                        "autoscaling:SetInstanceHealth",
+                                        "autoscaling:TerminateInstanceInAutoScalingGroup",
+                                        "autoscaling:AttachLoadBalancers",
+                                        "autoscaling:DetachLoadBalancers",
+                                        "autoscaling:BatchDeleteScheduledAction",
+                                        "autoscaling:ResumeProcesses",
+                                        "autoscaling:SetDesiredCapacity",
+                                        "autoscaling:PutLifecycleHook",
+                                        "autoscaling:DetachLoadBalancerTargetGroups",
+                                        "autoscaling:SuspendProcesses",
+                                        "autoscaling:AttachLoadBalancerTargetGroups",
+                                        "autoscaling:AttachInstances",
+                                        "autoscaling:CompleteLifecycleAction",
+                                        "autoscaling:CreateOrUpdateTags",
+                                        "autoscaling:SetInstanceProtection",
+                                        "autoscaling:DeleteAutoScalingGroup",
+                                        "autoscaling:DeleteLifecycleHook",
+                                        "autoscaling:CreateAutoScalingGroup",
+                                        "autoscaling:DeleteScheduledAction",
+                                        "autoscaling:DetachInstances",
+                                        "autoscaling:RecordLifecycleActionHeartbeat"
+                                    ],
+                                    "Resource": {
                                         "Fn::Sub": [
-                                            "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:vpc/*",
+                                            "arn:aws:autoscaling:${AWS_REGION}:${AWS_ACCOUNT_ID}:autoScalingGroup:*:autoScalingGroupName/${RESOURCE_PREFIX}*",
                                             {
                                                 "AWS_REGION": {
                                                     "Ref": "AWS::Region"
                                                 },
                                                 "AWS_ACCOUNT_ID": {
                                                     "Ref": "AWS::AccountId"
+                                                },
+                                                "RESOURCE_PREFIX": {
+                                                    "Ref": "ResourceTagPrefix"
                                                 }
                                             }
                                         ]
-                                    },
-                                    {
+                                    }
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "autoscaling:DescribeAutoScalingNotificationTypes",
+                                        "autoscaling:DescribeAutoScalingInstances",
+                                        "ec2:DescribeInstances",
+                                        "autoscaling:DescribeScalingProcessTypes",
+                                        "autoscaling:DescribeTerminationPolicyTypes",
+                                        "dynamodb:ListTables",
+                                        "autoscaling:DescribePolicies",
+                                        "ec2:DescribeInstanceAttribute",
+                                        "autoscaling:DescribeLaunchConfigurations",
+                                        "autoscaling:DescribeAdjustmentTypes",
+                                        "ec2:DescribeNetworkInterfaces",
+                                        "autoscaling:DescribeScalingActivities",
+                                        "autoscaling:DescribeAccountLimits",
+                                        "autoscaling:DescribeAutoScalingGroups",
+                                        "autoscaling:DescribeScheduledActions",
+                                        "autoscaling:DescribeLoadBalancerTargetGroups",
+                                        "autoscaling:DescribeNotificationConfigurations",
+                                        "autoscaling:DescribeLifecycleHookTypes",
+                                        "ec2:DetachNetworkInterface",
+                                        "autoscaling:DescribeTags",
+                                        "ec2:DeleteNetworkInterface",
+                                        "autoscaling:DescribeMetricCollectionTypes",
+                                        "autoscaling:DescribeLoadBalancers",
+                                        "autoscaling:DescribeLifecycleHooks",
+                                        "ec2:CreateNetworkInterface",
+                                        "ec2:ModifyNetworkInterfaceAttribute",
+                                        "ec2:ModifyInstanceAttribute",
+                                        "ec2:DescribeVpcs",
+                                        "ec2:AttachNetworkInterface",
+                                        "ec2:DescribeNetworkInterfaces",
+                                        "ec2:CreateTags",
+                                        "ec2:DeleteTags",
+                                        "ec2:DescribeVpcs",
+                                        "ec2:DescribeSubnets"
+                                    ],
+                                    "Resource": "*"
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": ["apigateway:GET"],
+                                    "Resource": {
                                         "Fn::Sub": [
-                                            "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway/*",
+                                            "arn:aws:apigateway:${AWS_REGION}::*",
                                             {
                                                 "AWS_REGION": {
                                                     "Ref": "AWS::Region"
-                                                },
-                                                "AWS_ACCOUNT_ID": {
-                                                    "Ref": "AWS::AccountId"
                                                 }
                                             }
                                         ]
-                                    },
-                                    {
+                                    }
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "s3:GetObject",
+                                    "Resource": {
                                         "Fn::Sub": [
-                                            "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway-attachment/*",
+                                            "arn:aws:s3:::${bucketname}/${keyprefix}assets/configset/*",
+                                            {
+                                                "bucketname": {
+                                                    "Ref": "S3BucketName"
+                                                },
+                                                "keyprefix": {
+                                                    "Ref": "S3KeyPrefix"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "ec2:DisassociateTransitGatewayRouteTable",
+                                        "ec2:ModifyTransitGatewayVpcAttachment",
+                                        "ec2:DisableTransitGatewayRouteTablePropagation",
+                                        "ec2:CreateTransitGatewayRouteTable",
+                                        "ec2:AcceptTransitGatewayVpcAttachment",
+                                        "ec2:ReplaceTransitGatewayRoute",
+                                        "ec2:DeleteTransitGatewayRouteTable",
+                                        "ec2:CreateTransitGatewayRoute",
+                                        "ec2:DeleteTransitGatewayRoute",
+                                        "ec2:CreateTransitGatewayVpcAttachment",
+                                        "ec2:DeleteTransitGatewayVpcAttachment",
+                                        "ec2:AssociateTransitGatewayRouteTable",
+                                        "ec2:RejectTransitGatewayVpcAttachment",
+                                        "ec2:EnableTransitGatewayRouteTablePropagation"
+                                    ],
+                                    "Resource": [
+                                        {
+                                            "Fn::Sub": [
+                                                "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway-route-table/*",
+                                                {
+                                                    "AWS_REGION": {
+                                                        "Ref": "AWS::Region"
+                                                    },
+                                                    "AWS_ACCOUNT_ID": {
+                                                        "Ref": "AWS::AccountId"
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "Fn::Sub": [
+                                                "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:vpc/*",
+                                                {
+                                                    "AWS_REGION": {
+                                                        "Ref": "AWS::Region"
+                                                    },
+                                                    "AWS_ACCOUNT_ID": {
+                                                        "Ref": "AWS::AccountId"
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "Fn::Sub": [
+                                                "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway/*",
+                                                {
+                                                    "AWS_REGION": {
+                                                        "Ref": "AWS::Region"
+                                                    },
+                                                    "AWS_ACCOUNT_ID": {
+                                                        "Ref": "AWS::AccountId"
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "Fn::Sub": [
+                                                "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway-attachment/*",
+                                                {
+                                                    "AWS_REGION": {
+                                                        "Ref": "AWS::Region"
+                                                    },
+                                                    "AWS_ACCOUNT_ID": {
+                                                        "Ref": "AWS::AccountId"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "ec2:ExportTransitGatewayRoutes",
+                                        "ec2:DescribeVpnConnections",
+                                        "ec2:GetTransitGatewayAttachmentPropagations",
+                                        "ec2:DescribeTransitGateways",
+                                        "ec2:CreateCustomerGateway",
+                                        "ec2:DescribeCustomerGateways",
+                                        "ec2:SearchTransitGatewayRoutes",
+                                        "ec2:DescribeTransitGatewayAttachments",
+                                        "ec2:DescribeTransitGatewayRouteTables",
+                                        "ec2:GetTransitGatewayRouteTablePropagations",
+                                        "ec2:DescribeTransitGatewayVpcAttachments",
+                                        "ec2:DeleteVpnConnection",
+                                        "ec2:GetTransitGatewayRouteTableAssociations",
+                                        "ec2:CreateVpnConnection"
+                                    ],
+                                    "Resource": "*"
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "ec2:DeleteCustomerGateway",
+                                    "Resource": {
+                                        "Fn::Sub": [
+                                            "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:customer-gateway/*",
                                             {
                                                 "AWS_REGION": {
                                                     "Ref": "AWS::Region"
@@ -394,48 +421,11 @@
                                             }
                                         ]
                                     }
-                                ]
-                            },
-                            {
-                                "Effect": "Allow",
-                                "Action": [
-                                    "ec2:ExportTransitGatewayRoutes",
-                                    "ec2:DescribeVpnConnections",
-                                    "ec2:GetTransitGatewayAttachmentPropagations",
-                                    "ec2:DescribeTransitGateways",
-                                    "ec2:CreateCustomerGateway",
-                                    "ec2:DescribeCustomerGateways",
-                                    "ec2:SearchTransitGatewayRoutes",
-                                    "ec2:DescribeTransitGatewayAttachments",
-                                    "ec2:DescribeTransitGatewayRouteTables",
-                                    "ec2:GetTransitGatewayRouteTablePropagations",
-                                    "ec2:DescribeTransitGatewayVpcAttachments",
-                                    "ec2:DeleteVpnConnection",
-                                    "ec2:GetTransitGatewayRouteTableAssociations",
-                                    "ec2:CreateVpnConnection"
-                                ],
-                                "Resource": "*"
-                            },
-                            {
-                                "Effect": "Allow",
-                                "Action": "ec2:DeleteCustomerGateway",
-                                "Resource": {
-                                    "Fn::Sub": [
-                                        "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:customer-gateway/*",
-                                        {
-                                            "AWS_REGION": {
-                                                "Ref": "AWS::Region"
-                                            },
-                                            "AWS_ACCOUNT_ID": {
-                                                "Ref": "AWS::AccountId"
-                                            }
-                                        }
-                                    ]
                                 }
-                            }
-                        ]
+                            ]
+                        }
                     }
-                }]
+                ]
             }
         }
     },
@@ -443,10 +433,7 @@
         "HandlerArn": {
             "Description": "Transit Gateway VPN management handler function ARN",
             "Value": {
-                "Fn::GetAtt": [
-                    "TransitGatewayVpnHandler",
-                    "Arn"
-                ]
+                "Fn::GetAtt": ["TransitGatewayVpnHandler", "Arn"]
             }
         },
         "HandlerName": {
@@ -454,9 +441,11 @@
             "Value": {
                 "Fn::Join": [
                     "-",
-                    [{
+                    [
+                        {
                             "Ref": "CustomIdentifier"
-                        }, {
+                        },
+                        {
                             "Ref": "UniqueId"
                         },
                         "fortigate-transit-gateway-vpn-handler"

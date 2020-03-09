@@ -78,10 +78,7 @@
         "FortiOSVersion": {
             "Type": "String",
             "Default": "LATEST",
-            "AllowedValues": [
-                "LATEST",
-                "621"
-            ],
+            "AllowedValues": ["LATEST", "621"],
             "ConstraintDescription": "must be a valid FortiOS version from the selection.",
             "Description": "Supported FortiOS versions. The 'LATEST' version can be found in template parameter 'FortiGateKeyMap.FortiGateVersion' in the 'Mappings section."
         },
@@ -189,10 +186,7 @@
         "TransitGatewaySupportOptions": {
             "Type": "String",
             "Default": "create one",
-            "AllowedValues": [
-                "create one",
-                "use an existing one"
-            ],
+            "AllowedValues": ["create one", "use an existing one"],
             "ConstraintDescription": "must choose from the provided options.",
             "Description": "Create a Transit Gateway for the FortiGate Autoscale VPC to attach to, or specify to use an existing one."
         },
@@ -211,14 +205,16 @@
     },
     "Conditions": {
         "GovCloudCondition": {
-            "Fn::Equals": [{
+            "Fn::Equals": [
+                {
                     "Ref": "AWS::Region"
                 },
                 "us-gov-west-1"
             ]
         },
         "CreateTransitGateway": {
-            "Fn::Equals": [{
+            "Fn::Equals": [
+                {
                     "Ref": "TransitGatewaySupportOptions"
                 },
                 "create one"
@@ -315,11 +311,7 @@
                         "https://${S3BucketName}.${S3Region}.amazonaws.com/${S3KeyPrefix}templates/create-transit-gateway.template",
                         {
                             "S3Region": {
-                                "Fn::If": [
-                                    "GovCloudCondition",
-                                    "s3-us-gov-west-1",
-                                    "s3"
-                                ]
+                                "Fn::If": ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
                             },
                             "S3BucketName": {
                                 "Ref": "S3BucketName"
@@ -363,11 +355,7 @@
                         "https://${S3BucketName}.${S3Region}.amazonaws.com/${S3KeyPrefix}templates/create-new-vpc.template",
                         {
                             "S3Region": {
-                                "Fn::If": [
-                                    "GovCloudCondition",
-                                    "s3-us-gov-west-1",
-                                    "s3"
-                                ]
+                                "Fn::If": ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
                             },
                             "S3BucketName": {
                                 "Ref": "S3BucketName"
@@ -394,11 +382,7 @@
                         "https://${S3BucketName}.${S3Region}.amazonaws.com/${S3KeyPrefix}templates/create-db-table.template",
                         {
                             "S3Region": {
-                                "Fn::If": [
-                                    "GovCloudCondition",
-                                    "s3-us-gov-west-1",
-                                    "s3"
-                                ]
+                                "Fn::If": ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
                             },
                             "S3BucketName": {
                                 "Ref": "S3BucketName"
@@ -421,48 +405,54 @@
                 ],
                 "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
-                    "Statement": [{
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": "ec2.amazonaws.com"
-                        },
-                        "Action": "sts:AssumeRole"
-                    }]
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ec2.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
                 },
                 "Path": "/",
-                "Policies": [{
-                    "PolicyDocument": {
-                        "Version": "2012-10-17",
-                        "Statement": [{
-                            "Action": [
-                                "s3:GetObject"
-                            ],
-                            "Resource": {
-                                "Fn::Sub": [
-                                    "arn:aws:s3:::${S3BucketName}/${S3KeyPrefix}*",
-                                    {
-                                        "S3BucketName": {
-                                            "Ref": "S3BucketName"
-                                        },
-                                        "S3KeyPrefix": {
-                                            "Ref": "S3KeyPrefix"
-                                        }
-                                    }
-                                ]
-                            },
-                            "Effect": "Allow"
-                        }]
-                    },
-                    "PolicyName": "fortigate-autoscale-instance-policy"
-                }]
+                "Policies": [
+                    {
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Action": ["s3:GetObject"],
+                                    "Resource": {
+                                        "Fn::Sub": [
+                                            "arn:aws:s3:::${S3BucketName}/${S3KeyPrefix}*",
+                                            {
+                                                "S3BucketName": {
+                                                    "Ref": "S3BucketName"
+                                                },
+                                                "S3KeyPrefix": {
+                                                    "Ref": "S3KeyPrefix"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "Effect": "Allow"
+                                }
+                            ]
+                        },
+                        "PolicyName": "fortigate-autoscale-instance-policy"
+                    }
+                ]
             }
         },
         "FgtInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
-                "Roles": [{
-                    "Ref": "FgtInstanceIamRole"
-                }]
+                "Roles": [
+                    {
+                        "Ref": "FgtInstanceIamRole"
+                    }
+                ]
             }
         },
         "StackCreateFortiGateAutoScaleHandler": {
@@ -490,16 +480,10 @@
                         "Ref": "FgtAsgVpcEndpoint"
                     },
                     "DbTableArnList": {
-                        "Fn::GetAtt": [
-                            "StackCreateDynamoDBTable",
-                            "Outputs.TableArnList"
-                        ]
+                        "Fn::GetAtt": ["StackCreateDynamoDBTable", "Outputs.TableArnList"]
                     },
                     "VpcId": {
-                        "Fn::GetAtt": [
-                            "StackCreateNewVPC",
-                            "Outputs.VpcId"
-                        ]
+                        "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.VpcId"]
                     },
                     "FortiGatePskSecret": {
                         "Ref": "FortiGatePskSecret"
@@ -536,11 +520,7 @@
                         "https://${S3BucketName}.${S3Region}.amazonaws.com/${S3KeyPrefix}templates/create-autoscale-handler.template",
                         {
                             "S3Region": {
-                                "Fn::If": [
-                                    "GovCloudCondition",
-                                    "s3-us-gov-west-1",
-                                    "s3"
-                                ]
+                                "Fn::If": ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
                             },
                             "S3BucketName": {
                                 "Ref": "S3BucketName"
@@ -559,17 +539,16 @@
             "Properties": {
                 "GroupDescription": "FortiGate security group",
                 "VpcId": {
-                    "Fn::GetAtt": [
-                        "StackCreateNewVPC",
-                        "Outputs.VpcId"
-                    ]
+                    "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.VpcId"]
                 },
-                "Tags": [{
+                "Tags": [
+                    {
                         "Key": "Name",
                         "Value": {
                             "Fn::Join": [
                                 "-",
-                                [{
+                                [
+                                    {
                                         "Ref": "ResourceTagPrefix"
                                     },
                                     "fortigate-autoscale-security-group"
@@ -687,22 +666,14 @@
             "Properties": {
                 "VpcEndpointType": "Interface",
                 "VpcId": {
-                    "Fn::GetAtt": [
-                        "StackCreateNewVPC",
-                        "Outputs.VpcId"
-                    ]
+                    "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.VpcId"]
                 },
-                "SubnetIds": [{
-                        "Fn::GetAtt": [
-                            "StackCreateNewVPC",
-                            "Outputs.PublicSubnet1Id"
-                        ]
+                "SubnetIds": [
+                    {
+                        "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.PublicSubnet1Id"]
                     },
                     {
-                        "Fn::GetAtt": [
-                            "StackCreateNewVPC",
-                            "Outputs.PublicSubnet2Id"
-                        ]
+                        "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.PublicSubnet2Id"]
                     }
                 ],
                 "PrivateDnsEnabled": true,
@@ -716,9 +687,11 @@
                         }
                     ]
                 },
-                "SecurityGroupIds": [{
-                    "Ref": "FgtAsgSecurityGroup"
-                }]
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "FgtAsgSecurityGroup"
+                    }
+                ]
             }
         },
         "StackCreateNicAttachmentService": {
@@ -741,16 +714,10 @@
                         "Ref": "UniqueId"
                     },
                     "DbTableArn": {
-                        "Fn::GetAtt": [
-                            "StackCreateDynamoDBTable",
-                            "Outputs.NicAttachmentTableArn"
-                        ]
+                        "Fn::GetAtt": ["StackCreateDynamoDBTable", "Outputs.NicAttachmentTableArn"]
                     },
                     "VpcId": {
-                        "Fn::GetAtt": [
-                            "StackCreateNewVPC",
-                            "Outputs.VpcId"
-                        ]
+                        "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.VpcId"]
                     }
                 },
                 "TemplateURL": {
@@ -758,11 +725,7 @@
                         "https://${S3BucketName}.${S3Region}.amazonaws.com/${S3KeyPrefix}templates/add-nic-attachment-service.template",
                         {
                             "S3Region": {
-                                "Fn::If": [
-                                    "GovCloudCondition",
-                                    "s3-us-gov-west-1",
-                                    "s3"
-                                ]
+                                "Fn::If": ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
                             },
                             "S3BucketName": {
                                 "Ref": "S3BucketName"
@@ -780,10 +743,7 @@
             "Type": "AWS::CloudFormation::CustomResource",
             "Properties": {
                 "ServiceToken": {
-                    "Fn::GetAtt": [
-                        "StackCreateNicAttachmentService",
-                        "Outputs.CfnServiceProvider"
-                    ]
+                    "Fn::GetAtt": ["StackCreateNicAttachmentService", "Outputs.CfnServiceProvider"]
                 }
             }
         },
@@ -812,11 +772,7 @@
                         "https://${S3BucketName}.${S3Region}.amazonaws.com/${S3KeyPrefix}templates/create-tgw-vpn-handler.template",
                         {
                             "S3Region": {
-                                "Fn::If": [
-                                    "GovCloudCondition",
-                                    "s3-us-gov-west-1",
-                                    "s3"
-                                ]
+                                "Fn::If": ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
                             },
                             "S3BucketName": {
                                 "Ref": "S3BucketName"
@@ -847,26 +803,17 @@
                         "Ref": "UniqueId"
                     },
                     "AsgSubnet1Id": {
-                        "Fn::GetAtt": [
-                            "StackCreateNewVPC",
-                            "Outputs.PublicSubnet1Id"
-                        ]
+                        "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.PublicSubnet1Id"]
                     },
                     "AsgSubnet2Id": {
-                        "Fn::GetAtt": [
-                            "StackCreateNewVPC",
-                            "Outputs.PublicSubnet2Id"
-                        ]
+                        "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.PublicSubnet2Id"]
                     },
                     "ELBV2TargetGroupARNs": "",
                     "InstanceType": {
                         "Ref": "FortiGateInstanceType"
                     },
                     "InstanceProfileArn": {
-                        "Fn::GetAtt": [
-                            "FgtInstanceProfile",
-                            "Arn"
-                        ]
+                        "Fn::GetAtt": ["FgtInstanceProfile", "Arn"]
                     },
                     "KeyPairName": {
                         "Ref": "KeyPairName"
@@ -950,11 +897,7 @@
                         "https://${S3BucketName}.${S3Region}.amazonaws.com/${S3KeyPrefix}templates/create-auto-scaling-group.template",
                         {
                             "S3Region": {
-                                "Fn::If": [
-                                    "GovCloudCondition",
-                                    "s3-us-gov-west-1",
-                                    "s3"
-                                ]
+                                "Fn::If": ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
                             },
                             "S3BucketName": {
                                 "Ref": "S3BucketName"
@@ -967,10 +910,7 @@
                 },
                 "TimeoutInMinutes": "10"
             },
-            "DependsOn": [
-                "StartNicAttachmentService",
-                "FgtAsgHandlerIamPolicyTgwManagement"
-            ]
+            "DependsOn": ["StartNicAttachmentService", "FgtAsgHandlerIamPolicyTgwManagement"]
         },
         "StartFortiGateAutoScalingGroupService": {
             "Type": "AWS::CloudFormation::CustomResource",
@@ -992,24 +932,15 @@
                     "Ref": "FgtAsgMaxSize"
                 },
                 "Subnet1": {
-                    "Fn::GetAtt": [
-                        "StackCreateNewVPC",
-                        "Outputs.PublicSubnet1Id"
-                    ]
+                    "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.PublicSubnet1Id"]
                 },
                 "Subnet1Pair": "",
                 "Subnet2": {
-                    "Fn::GetAtt": [
-                        "StackCreateNewVPC",
-                        "Outputs.PublicSubnet2Id"
-                    ]
+                    "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.PublicSubnet2Id"]
                 },
                 "Subnet2Pair": ""
             },
-            "DependsOn": [
-                "StackCreateFortiGateAutoScalingGroup",
-                "SaveSettings"
-            ]
+            "DependsOn": ["StackCreateFortiGateAutoScalingGroup", "SaveSettings"]
         },
         "StopFortiGateAutoScalingGroupService": {
             "Type": "AWS::CloudFormation::CustomResource",
@@ -1062,10 +993,7 @@
                     ]
                 },
                 "VpcId": {
-                    "Fn::GetAtt": [
-                        "StackCreateNewVPC",
-                        "Outputs.VpcId"
-                    ]
+                    "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.VpcId"]
                 },
                 "FortiGatePskSecret": {
                     "Ref": "FortiGatePskSecret"
@@ -1084,37 +1012,37 @@
                 "HeartBeatLossCount": {
                     "Ref": "HeartBeatLossCount"
                 },
-                "AutoscaleHandlerUrl":{
+                "AutoscaleHandlerUrl": {
                     "Fn::GetAtt": [
                         "StackCreateFortiGateAutoScaleHandler",
                         "Outputs.FgtAsgHandlerApiGatewayUrl"
                     ]
                 },
-                "MasterAutoScalingGroupName":{
+                "MasterAutoScalingGroupName": {
                     "Fn::GetAtt": [
                         "StackCreateFortiGateAutoScalingGroup",
                         "Outputs.AutoScalingGroupName"
                     ]
                 },
-                "PAYGAutoScalingGroupName":{
+                "PAYGAutoScalingGroupName": {
                     "Fn::GetAtt": [
                         "StackCreateFortiGateAutoScalingGroup",
                         "Outputs.AutoScalingGroupName"
                     ]
                 },
-                "BYOLAutoScalingGroupName":{
+                "BYOLAutoScalingGroupName": {
                     "Fn::GetAtt": [
                         "StackCreateFortiGateAutoScalingGroup",
                         "Outputs.AutoScalingGroupName"
                     ]
                 },
-                "RequiredConfigset":{
+                "RequiredConfigset": {
                     "Fn::GetAtt": [
                         "StackCreateFortiGateAutoScaleHandler",
                         "Outputs.RequiredConfigsetList"
                     ]
                 },
-                "BgpAsn":{
+                "BgpAsn": {
                     "Ref": "BgpAsn"
                 },
                 "TransitGatewayId": {
@@ -1143,10 +1071,7 @@
                 "EnableInternalElb": "false",
                 "InternalElbDns": "",
                 "TransitGatewayVpnHandlerName": {
-                    "Fn::GetAtt": [
-                        "StackCreateTransitGatewayVpnHandler",
-                        "Outputs.HandlerName"
-                    ]
+                    "Fn::GetAtt": ["StackCreateTransitGatewayVpnHandler", "Outputs.HandlerName"]
                 }
             },
             "DependsOn": [
@@ -1154,72 +1079,111 @@
                 "StackCreateFortiGateAutoScaleHandler"
             ]
         },
-        "FgtAsgHandlerIamPolicyTgwManagement":{
-            "Type" : "AWS::IAM::Policy",
-            "Properties" : {
+        "FgtAsgHandlerIamPolicyTgwManagement": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
                 "PolicyDocument": {
                     "Version": "2012-10-17",
-                    "Statement": [{
-                        "Effect": "Allow",
-                        "Action": [
-                            "ec2:DisassociateTransitGatewayRouteTable",
-                            "ec2:ModifyTransitGatewayVpcAttachment",
-                            "ec2:DisableTransitGatewayRouteTablePropagation",
-                            "ec2:CreateTransitGatewayRouteTable",
-                            "ec2:AcceptTransitGatewayVpcAttachment",
-                            "ec2:ReplaceTransitGatewayRoute",
-                            "ec2:DeleteTransitGatewayRouteTable",
-                            "ec2:CreateTransitGatewayRoute",
-                            "ec2:DeleteTransitGatewayRoute",
-                            "ec2:CreateTransitGatewayVpcAttachment",
-                            "ec2:DeleteTransitGatewayVpcAttachment",
-                            "ec2:AssociateTransitGatewayRouteTable",
-                            "ec2:RejectTransitGatewayVpcAttachment",
-                            "ec2:EnableTransitGatewayRouteTablePropagation"
-                        ],
-                        "Resource": [
-                            {
-                                "Fn::Sub": [
-                                    "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway-route-table/*",
-                                    {
-                                        "AWS_REGION": {
-                                            "Ref": "AWS::Region"
-                                        },
-                                        "AWS_ACCOUNT_ID": {
-                                            "Ref": "AWS::AccountId"
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "ec2:DisassociateTransitGatewayRouteTable",
+                                "ec2:ModifyTransitGatewayVpcAttachment",
+                                "ec2:DisableTransitGatewayRouteTablePropagation",
+                                "ec2:CreateTransitGatewayRouteTable",
+                                "ec2:AcceptTransitGatewayVpcAttachment",
+                                "ec2:ReplaceTransitGatewayRoute",
+                                "ec2:DeleteTransitGatewayRouteTable",
+                                "ec2:CreateTransitGatewayRoute",
+                                "ec2:DeleteTransitGatewayRoute",
+                                "ec2:CreateTransitGatewayVpcAttachment",
+                                "ec2:DeleteTransitGatewayVpcAttachment",
+                                "ec2:AssociateTransitGatewayRouteTable",
+                                "ec2:RejectTransitGatewayVpcAttachment",
+                                "ec2:EnableTransitGatewayRouteTablePropagation"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::Sub": [
+                                        "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway-route-table/*",
+                                        {
+                                            "AWS_REGION": {
+                                                "Ref": "AWS::Region"
+                                            },
+                                            "AWS_ACCOUNT_ID": {
+                                                "Ref": "AWS::AccountId"
+                                            }
                                         }
-                                    }
-                                ]
-                            },
-                            {
-                                "Fn::Sub": [
-                                    "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:vpc/*",
-                                    {
-                                        "AWS_REGION": {
-                                            "Ref": "AWS::Region"
-                                        },
-                                        "AWS_ACCOUNT_ID": {
-                                            "Ref": "AWS::AccountId"
+                                    ]
+                                },
+                                {
+                                    "Fn::Sub": [
+                                        "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:vpc/*",
+                                        {
+                                            "AWS_REGION": {
+                                                "Ref": "AWS::Region"
+                                            },
+                                            "AWS_ACCOUNT_ID": {
+                                                "Ref": "AWS::AccountId"
+                                            }
                                         }
-                                    }
-                                ]
-                            },
-                            {
-                                "Fn::Sub": [
-                                    "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway/*",
-                                    {
-                                        "AWS_REGION": {
-                                            "Ref": "AWS::Region"
-                                        },
-                                        "AWS_ACCOUNT_ID": {
-                                            "Ref": "AWS::AccountId"
+                                    ]
+                                },
+                                {
+                                    "Fn::Sub": [
+                                        "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway/*",
+                                        {
+                                            "AWS_REGION": {
+                                                "Ref": "AWS::Region"
+                                            },
+                                            "AWS_ACCOUNT_ID": {
+                                                "Ref": "AWS::AccountId"
+                                            }
                                         }
-                                    }
-                                ]
-                            },
-                            {
+                                    ]
+                                },
+                                {
+                                    "Fn::Sub": [
+                                        "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway-attachment/*",
+                                        {
+                                            "AWS_REGION": {
+                                                "Ref": "AWS::Region"
+                                            },
+                                            "AWS_ACCOUNT_ID": {
+                                                "Ref": "AWS::AccountId"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "ec2:ExportTransitGatewayRoutes",
+                                "ec2:DescribeVpnConnections",
+                                "ec2:GetTransitGatewayAttachmentPropagations",
+                                "ec2:DescribeTransitGateways",
+                                "ec2:CreateCustomerGateway",
+                                "ec2:DescribeCustomerGateways",
+                                "ec2:SearchTransitGatewayRoutes",
+                                "ec2:DescribeTransitGatewayAttachments",
+                                "ec2:DescribeTransitGatewayRouteTables",
+                                "ec2:GetTransitGatewayRouteTablePropagations",
+                                "ec2:DescribeTransitGatewayVpcAttachments",
+                                "ec2:DeleteVpnConnection",
+                                "ec2:GetTransitGatewayRouteTableAssociations",
+                                "ec2:CreateVpnConnection"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": "ec2:DeleteCustomerGateway",
+                            "Resource": {
                                 "Fn::Sub": [
-                                    "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:transit-gateway-attachment/*",
+                                    "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:customer-gateway/*",
                                     {
                                         "AWS_REGION": {
                                             "Ref": "AWS::Region"
@@ -1230,74 +1194,34 @@
                                     }
                                 ]
                             }
-                        ]
-                    },
-                    {
-                        "Effect": "Allow",
-                        "Action": [
-                            "ec2:ExportTransitGatewayRoutes",
-                            "ec2:DescribeVpnConnections",
-                            "ec2:GetTransitGatewayAttachmentPropagations",
-                            "ec2:DescribeTransitGateways",
-                            "ec2:CreateCustomerGateway",
-                            "ec2:DescribeCustomerGateways",
-                            "ec2:SearchTransitGatewayRoutes",
-                            "ec2:DescribeTransitGatewayAttachments",
-                            "ec2:DescribeTransitGatewayRouteTables",
-                            "ec2:GetTransitGatewayRouteTablePropagations",
-                            "ec2:DescribeTransitGatewayVpcAttachments",
-                            "ec2:DeleteVpnConnection",
-                            "ec2:GetTransitGatewayRouteTableAssociations",
-                            "ec2:CreateVpnConnection"
-                        ],
-                        "Resource": "*"
-                    },
-                    {
-                        "Effect": "Allow",
-                        "Action": "ec2:DeleteCustomerGateway",
-                        "Resource": {
-                            "Fn::Sub": [
-                                "arn:aws:ec2:${AWS_REGION}:${AWS_ACCOUNT_ID}:customer-gateway/*",
-                                {
-                                    "AWS_REGION": {
-                                        "Ref": "AWS::Region"
-                                    },
-                                    "AWS_ACCOUNT_ID": {
-                                        "Ref": "AWS::AccountId"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": ["lambda:InvokeFunction", "lambda:InvokeAsync"],
+                            "Resource": {
+                                "Fn::Sub": [
+                                    "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:${CUSTOM_ID}-${UNIQUE_ID}*",
+                                    {
+                                        "AWS_REGION": {
+                                            "Ref": "AWS::Region"
+                                        },
+                                        "AWS_ACCOUNT_ID": {
+                                            "Ref": "AWS::AccountId"
+                                        },
+                                        "CUSTOM_ID": {
+                                            "Ref": "CustomIdentifier"
+                                        },
+                                        "UNIQUE_ID": {
+                                            "Ref": "UniqueId"
+                                        }
                                     }
-                                }
-                            ]
+                                ]
+                            }
                         }
-                    },
-                    {
-                        "Effect": "Allow",
-                        "Action": [
-                            "lambda:InvokeFunction",
-                            "lambda:InvokeAsync"
-                        ],
-                        "Resource": {
-                            "Fn::Sub": [
-                                "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:${CUSTOM_ID}-${UNIQUE_ID}*",
-                                {
-                                    "AWS_REGION": {
-                                        "Ref": "AWS::Region"
-                                    },
-                                    "AWS_ACCOUNT_ID": {
-                                        "Ref": "AWS::AccountId"
-                                    },
-                                    "CUSTOM_ID": {
-                                        "Ref": "CustomIdentifier"
-                                    },
-                                    "UNIQUE_ID": {
-                                        "Ref": "UniqueId"
-                                    }
-                                }
-                            ]
-                        }
-                    }]
+                    ]
                 },
                 "PolicyName": "fortigate-autoscale-transit-gateway-management-policy",
-                "Roles":[
+                "Roles": [
                     {
                         "Fn::GetAtt": [
                             "StackCreateFortiGateAutoScaleHandler",
@@ -1306,9 +1230,7 @@
                     }
                 ]
             },
-            "DependsOn": [
-                "StackCreateFortiGateAutoScaleHandler"
-            ]
+            "DependsOn": ["StackCreateFortiGateAutoScaleHandler"]
         },
         "TransitGatewayAttachmentFgtVPC": {
             "Type": "AWS::EC2::TransitGatewayAttachment",
@@ -1328,30 +1250,24 @@
                     ]
                 },
                 "VpcId": {
-                    "Fn::GetAtt": [
-                        "StackCreateNewVPC",
-                        "Outputs.VpcId"
-                    ]
+                    "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.VpcId"]
                 },
-                "SubnetIds": [{
-                        "Fn::GetAtt": [
-                            "StackCreateNewVPC",
-                            "Outputs.PublicSubnet1Id"
-                        ]
+                "SubnetIds": [
+                    {
+                        "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.PublicSubnet1Id"]
                     },
                     {
-                        "Fn::GetAtt": [
-                            "StackCreateNewVPC",
-                            "Outputs.PublicSubnet2Id"
-                        ]
+                        "Fn::GetAtt": ["StackCreateNewVPC", "Outputs.PublicSubnet2Id"]
                     }
                 ],
-                "Tags": [{
+                "Tags": [
+                    {
                         "Key": "Name",
                         "Value": {
                             "Fn::Join": [
                                 "-",
-                                [{
+                                [
+                                    {
                                         "Ref": "ResourceTagPrefix"
                                     },
                                     "transit-gateway-attachment-fortigate-vpc"
@@ -1385,12 +1301,14 @@
                         }
                     ]
                 },
-                "Tags": [{
+                "Tags": [
+                    {
                         "Key": "Name",
                         "Value": {
                             "Fn::Join": [
                                 "-",
-                                [{
+                                [
+                                    {
                                         "Ref": "ResourceTagPrefix"
                                     },
                                     "transit-gateway-route-table-inbound"
@@ -1424,12 +1342,14 @@
                         }
                     ]
                 },
-                "Tags": [{
+                "Tags": [
+                    {
                         "Key": "Name",
                         "Value": {
                             "Fn::Join": [
                                 "-",
-                                [{
+                                [
+                                    {
                                         "Ref": "ResourceTagPrefix"
                                     },
                                     "transit-gateway-route-table-outbound"
@@ -1460,14 +1380,12 @@
     },
     "Metadata": {
         "AWS::CloudFormation::Interface": {
-            "ParameterGroups": [{
+            "ParameterGroups": [
+                {
                     "Label": {
                         "default": "Resource tagging configuration"
                     },
-                    "Parameters": [
-                        "ResourceTagPrefix",
-                        "CustomIdentifier"
-                    ]
+                    "Parameters": ["ResourceTagPrefix", "CustomIdentifier"]
                 },
                 {
                     "Label": {
@@ -1513,28 +1431,19 @@
                     "Label": {
                         "default": "Transit Gateway configuration"
                     },
-                    "Parameters": [
-                        "TransitGatewaySupportOptions",
-                        "TransitGatewayId"
-                    ]
+                    "Parameters": ["TransitGatewaySupportOptions", "TransitGatewayId"]
                 },
                 {
                     "Label": {
                         "default": "Failover management configuration"
                     },
-                    "Parameters": [
-                        "HeartBeatLossCount",
-                        "HeartBeatInterval"
-                    ]
+                    "Parameters": ["HeartBeatLossCount", "HeartBeatInterval"]
                 },
                 {
                     "Label": {
                         "default": "Deployment resources configuration"
                     },
-                    "Parameters": [
-                        "S3BucketName",
-                        "S3KeyPrefix"
-                    ]
+                    "Parameters": ["S3BucketName", "S3KeyPrefix"]
                 }
             ],
             "ParameterLabels": {

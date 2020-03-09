@@ -17,12 +17,14 @@
                 "VpnEcmpSupport": "enable",
                 "DefaultRouteTablePropagation": "disable",
                 "DefaultRouteTableAssociation": "disable",
-                "Tags": [{
+                "Tags": [
+                    {
                         "Key": "Name",
                         "Value": {
                             "Fn::Join": [
                                 "-",
-                                [{
+                                [
+                                    {
                                         "Ref": "ResourceTagPrefix"
                                     },
                                     "transit-gateway"
@@ -42,14 +44,14 @@
     },
     "Metadata": {
         "AWS::CloudFormation::Interface": {
-            "ParameterGroups": [{
-                "Label": {
-                    "default": "Resource tagging configuration"
-                },
-                "Parameters": [
-                    "ResourceTagPrefix"
-                ]
-            }],
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Resource tagging configuration"
+                    },
+                    "Parameters": ["ResourceTagPrefix"]
+                }
+            ],
             "ParameterLabels": {
                 "ResourceTagPrefix": {
                     "default": "Resource Tag Prefix"

@@ -2773,7 +2773,7 @@ class AwsAutoscaleHandler extends AutoScaleCore.AutoscaleHandler {
             // try to get a setting of customer gateway
             let bgpAsn = this._settings['bgp-asn'];
             // take 65000 by AWS' default
-            bgpAsn = bgpAsn && bgpAsn.value && !isNaN(bgpAsn.value) ? bgpAsn.value : 65000;
+            bgpAsn = bgpAsn && !isNaN(bgpAsn) ? bgpAsn : 65000;
             let customerGateway = await this.platform.createCustomerGateway({
                 bgpAsn: bgpAsn,
                 publicIp: this._selfInstance.primaryPublicIpAddress,
