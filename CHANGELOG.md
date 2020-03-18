@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2020-03-18
+### Changed
+- bugfix: TGW always creates a customer VPN gateway with BGP ASN 65000
+- update aws launch stack button url to deploy with parameters
+
 ## [1.1.3] - 2020-01-23
 ### Changed
 - Fix error related to updating the AutoscaleRole tag
