@@ -14,7 +14,11 @@ node('devops-aws') {
     stage('NPM Install') {
         echo 'NPM Install..'
         sh 'npm install'
-        sh 'npm install guardhao104/ftnt-devops-ci'
+    }
+
+    stage('NPM Audit') {
+        echo 'running npm audit..'
+        sh 'npm audit --production'
     }
 
     stage('Format check') {
