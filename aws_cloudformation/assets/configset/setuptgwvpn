@@ -68,6 +68,7 @@ config vpn ipsec phase1-interface
         set remote-gw {@vpn_connection.ipsec_tunnel.vpn_gateway.tunnel_outside_address.ip_address}
         set psksecret {@vpn_connection.ipsec_tunnel.ike.pre_shared_key}
         set dpd-retryinterval 10
+        set transit-gateway enable
     next
 end
 
@@ -128,6 +129,7 @@ config vpn ipsec phase1-interface
         set remote-gw {@vpn_connection.ipsec_tunnel#1.vpn_gateway.tunnel_outside_address.ip_address}
         set psksecret {@vpn_connection.ipsec_tunnel#1.ike.pre_shared_key}
         set dpd-retryinterval 10
+        set transit-gateway enable
     next
 end
 
