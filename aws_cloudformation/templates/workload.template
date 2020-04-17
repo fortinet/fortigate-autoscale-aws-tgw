@@ -278,10 +278,10 @@
                 "FGTVM64PAYG623": "ami-02b9cc036cab1071d"
             },
             "us-gov-east-1": {
-                "FGTVM64PAYG623": "ami-7d52b30c"
+                "FGTVM64PAYG623": "ami-9bef03ea"
             },
             "us-gov-west-1": {
-                "FGTVM64PAYG623": "ami-6d00430c"
+                "FGTVM64PAYG623": "ami-c4d9efa5"
             }
         },
         "ProtocolPortMap": {
