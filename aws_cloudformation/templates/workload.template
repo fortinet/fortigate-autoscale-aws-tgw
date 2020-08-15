@@ -78,7 +78,7 @@
         "FortiOSVersion": {
             "Type": "String",
             "Default": "LATEST",
-            "AllowedValues": ["LATEST", "623"],
+            "AllowedValues": ["LATEST", "623", "642"],
             "ConstraintDescription": "must be a valid FortiOS version from the selection.",
             "Description": "Supported FortiOS versions. The 'LATEST' version can be found in template parameter 'FortiGateKeyMap.FortiGateVersion' in the 'Mappings section."
         },
@@ -224,64 +224,95 @@
     "Mappings": {
         "FortiGateKeyMap": {
             "FortiGateVersion": {
-                "LATEST": "FGTVM64PAYG623",
-                "623": "FGTVM64PAYG623"
+                "LATEST": "FGTVM64PAYG642",
+                "623": "FGTVM64PAYG623",
+                "642": "FGTVM64PAYG642"
             }
         },
         "AWSAMIRegionMap": {
             "AMI": {
-                "FGTVM64PAYG623": "aws-marketplace/FortiGate-VM64-AWSONDEMAND build8404 (6.2.3) GA-3124a694-441c-4ff1-8bf7-4d153be424a6-ami-0462507a813be3282.4"
+                "FGTVM64PAYG623": "aws-marketplace/FortiGate-VM64-AWSONDEMAND build8404 (6.2.3) GA-3124a694-441c-4ff1-8bf7-4d153be424a6-ami-0462507a813be3282.4",
+                "FGTVM64PAYG642": "aws-marketplace/FortiGate-VM64-AWSONDEMAND build1723 (6.4.2) GA-3124a694-441c-4ff1-8bf7-4d153be424a6-ami-072eddce6321e3dfc.4"
             },
             "ap-northeast-1": {
-                "FGTVM64PAYG623": "ami-0444162d604179bf6"
+                "FGTVM64PAYG623": "ami-0444162d604179bf6",
+                "FGTVM64PAYG642": "ami-012323c6ee2d10939"
             },
             "ap-northeast-2": {
-                "FGTVM64PAYG623": "ami-065b67d14c722617a"
-            },
-            "ap-southeast-1": {
-                "FGTVM64PAYG623": "ami-0155fb808596ae522"
-            },
-            "ap-southeast-2": {
-                "FGTVM64PAYG623": "ami-0b67711c6be07aa0b"
+                "FGTVM64PAYG623": "ami-065b67d14c722617a",
+                "FGTVM64PAYG642": "ami-00d77eb74c66fb356"
             },
             "ap-south-1": {
-                "FGTVM64PAYG623": "ami-0f6693857523585b8"
+                "FGTVM64PAYG623": "ami-0f6693857523585b8",
+                "FGTVM64PAYG642": "ami-0cdc691025c98c34c"
             },
-            "sa-east-1": {
-                "FGTVM64PAYG623": "ami-04de901f24e8532db"
+            "ap-southeast-1": {
+                "FGTVM64PAYG623": "ami-0155fb808596ae522",
+                "FGTVM64PAYG642": "ami-0796bf2adb764b2a9"
             },
-            "eu-west-1": {
-                "FGTVM64PAYG623": "ami-0874d1d29263b27ff"
-            },
-            "eu-west-2": {
-                "FGTVM64PAYG623": "ami-04eba63bb19dbeebe"
-            },
-            "eu-west-3": {
-                "FGTVM64PAYG623": "ami-0c104a0848b644152"
-            },
-            "eu-central-1": {
-                "FGTVM64PAYG623": "ami-0c380ca68f2b1f6e8"
+            "ap-southeast-2": {
+                "FGTVM64PAYG623": "ami-0b67711c6be07aa0b",
+                "FGTVM64PAYG642": "ami-0080eebbc256a695c"
             },
             "ca-central-1": {
-                "FGTVM64PAYG623": "ami-099941e57393c2225"
+                "FGTVM64PAYG623": "ami-099941e57393c2225",
+                "FGTVM64PAYG642": "ami-0af16a22b71764ca5"
+            },
+            "eu-central-1": {
+                "FGTVM64PAYG623": "ami-0c380ca68f2b1f6e8",
+                "FGTVM64PAYG642": "ami-04e0fd86abd8d2109"
+            },
+            "eu-north-1": {
+                "FGTVM64PAYG623": "ami-0d49417aa3a3912e1",
+                "FGTVM64PAYG642": "ami-03cb609d3790d97a0"
+            },
+            "eu-west-1": {
+                "FGTVM64PAYG623": "ami-0874d1d29263b27ff",
+                "FGTVM64PAYG642": "ami-04d2af58b72ff5293"
+            },
+            "eu-west-2": {
+                "FGTVM64PAYG623": "ami-04eba63bb19dbeebe",
+                "FGTVM64PAYG642": "ami-0f8e0a1e8a4239f07"
+            },
+            "eu-west-3": {
+                "FGTVM64PAYG623": "ami-0c104a0848b644152",
+                "FGTVM64PAYG642": "ami-0657dfa166eab43f3"
+            },
+            "sa-east-1": {
+                "FGTVM64PAYG623": "ami-04de901f24e8532db",
+                "FGTVM64PAYG642": "ami-0bc801f13e61a333d"
             },
             "us-east-1": {
-                "FGTVM64PAYG623": "ami-027f258cda3df62de"
+                "FGTVM64PAYG623": "ami-027f258cda3df62de",
+                "FGTVM64PAYG642": "ami-0164e2a945bf351e1"
             },
             "us-east-2": {
-                "FGTVM64PAYG623": "ami-05a4ac8312f7911b9"
-            },
-            "us-west-1": {
-                "FGTVM64PAYG623": "ami-0f54d37e47fa994a0"
-            },
-            "us-west-2": {
-                "FGTVM64PAYG623": "ami-02b9cc036cab1071d"
+                "FGTVM64PAYG623": "ami-05a4ac8312f7911b9",
+                "FGTVM64PAYG642": "ami-0c2f03fff3cc0cc92"
             },
             "us-gov-east-1": {
-                "FGTVM64PAYG623": "ami-9bef03ea"
+                "FGTVM64PAYG623": "ami-9bef03ea",
+                "FGTVM64PAYG642": ""
             },
             "us-gov-west-1": {
-                "FGTVM64PAYG623": "ami-c4d9efa5"
+                "FGTVM64PAYG623": "ami-c4d9efa5",
+                "FGTVM64PAYG642": ""
+            },
+            "us-west-1": {
+                "FGTVM64PAYG623": "ami-0f54d37e47fa994a0",
+                "FGTVM64PAYG642": "ami-039efced40216d10f"
+            },
+            "us-west-2": {
+                "FGTVM64PAYG623": "ami-02b9cc036cab1071d",
+                "FGTVM64PAYG642": "ami-03ee081dace39500a"
+            },
+            "ap-east-1": {
+                "FGTVM64PAYG623": "ami-0437be57fc361c67b",
+                "FGTVM64PAYG642": "ami-09722e9bb4cc35027"
+            },
+            "me-south-1": {
+                "FGTVM64PAYG623": "ami-0fcd028d7d86a0695",
+                "FGTVM64PAYG642": "ami-0bef354a4f9e6ab7e"
             }
         },
         "ProtocolPortMap": {

@@ -70,8 +70,8 @@
         },
         "FortiOSVersion": {
             "Type": "String",
-            "Default": "Latest (6.2.3)",
-            "AllowedValues": ["Latest (6.2.3)", "FortiOS 6.2.3"],
+            "Default": "Latest (6.4.2)",
+            "AllowedValues": ["Latest (6.4.2)", "FortiOS 6.2.3", "FortiOS 6.4.2"],
             "ConstraintDescription": "must be a valid FortiOS version from the selection.",
             "Description": "FortiOS version."
         },
