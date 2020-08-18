@@ -217,6 +217,7 @@ config firewall policy
         set action accept
         set schedule "always"
         set service "ALL"
+        # set fsso command is only available in FOS 6.2 and removed from FOS 6.4. The 'command fail' errors can be safely ignored if you see them.
         set fsso disable
         set nat enable
     next
