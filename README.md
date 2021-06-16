@@ -2,7 +2,7 @@
 
 This repository has been archived.
 
-The ***FortiGate Autoscale with AWS Transit Gateway Integration*** project has been replaced by [https://github.com/fortinet/fortigate-autoscale-aws](https://github.com/fortinet/fortigate-autoscale-aws). The Transit Gateway integration feature provided here in this project is also available in the new [fortigate-autoscale-aws](https://github.com/fortinet/fortigate-autoscale-aws) project.
+The ***FortiGate Autoscale with AWS Transit Gateway Integration*** project has been moved to a new location: [https://github.com/fortinet/fortigate-autoscale-aws](https://github.com/fortinet/fortigate-autoscale-aws).
 
 The last release of this repository is [1.1.8](https://github.com/fortinet/fortigate-autoscale-aws-tgw/releases/tag/1.1.8).
 
